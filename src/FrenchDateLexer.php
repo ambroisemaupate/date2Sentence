@@ -2,18 +2,16 @@
 
 namespace AM\Date2Sentence;
 
-
 use IntlDateFormatter;
-use NumberFormatter;
 
-class EnglishDateLexer extends AbstractDateLexer
+class FrenchDateLexer extends AbstractDateLexer
 {
     /**
      * @inheritDoc
      */
     public function getLocale(): string
     {
-        return 'en_US';
+        return 'fr_FR';
     }
 
     /**
@@ -32,10 +30,9 @@ class EnglishDateLexer extends AbstractDateLexer
             IntlDateFormatter::NONE,
             \date_default_timezone_get(),
             IntlDateFormatter::GREGORIAN,
-            'MMMM d'
+            'd MMMM'
         );
     }
-
 
     /**
      * @param integer $number
@@ -43,9 +40,12 @@ class EnglishDateLexer extends AbstractDateLexer
      */
     public function ordinal($number): string
     {
-        $formatter = new NumberFormatter($this->getLocale(), NumberFormatter::ORDINAL);
-        return $formatter->format($number);
+        if ($number == 1) {
+            return '1er';
+        }
+        return $number;
     }
+
 
     /**
      * @return string
@@ -54,9 +54,14 @@ class EnglishDateLexer extends AbstractDateLexer
     {
         if ($this->isContinuous()) {
             if ($this->isSingleDay()) {
-                $sentence = $this->formatDay($this->getStartDate());
+                $sentence = 'le ' . $this->formatDay($this->getStartDate());
             } else {
-                $sentence = 'from ' . $this->formatDay($this->getStartDate()) . ' to ' . $this->formatDay($this->getEndDate());
+                if ($this->isSameMonth()) {
+                    // French can omit first month if same as end date
+                    $sentence = 'du ' . $this->ordinal($this->getStartDate()->format('d')) . ' au ' . $this->formatDay($this->getEndDate());
+                } else {
+                    $sentence = 'du ' . $this->formatDay($this->getStartDate()) . ' au ' . $this->formatDay($this->getEndDate());
+                }
             }
         } else {
             $strings = [];
@@ -65,7 +70,7 @@ class EnglishDateLexer extends AbstractDateLexer
             }
 
             $sentence = implode(', ', array_slice($strings, 0, -1));
-            $sentence .= ' and ' . $strings[count($strings) - 1];
+            $sentence .= ' et ' . $strings[count($strings) - 1];
         }
 
         if ($this->isSubSpan()) {

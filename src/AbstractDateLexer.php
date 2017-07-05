@@ -3,6 +3,7 @@
 namespace AM\Date2Sentence;
 
 use IntlDateFormatter;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AbstractDateLexer implements LexerInterface
 {
@@ -37,6 +38,16 @@ abstract class AbstractDateLexer implements LexerInterface
     protected $singleDay;
 
     /**
+     * @var boolean
+     */
+    protected $sameMonth = false;
+
+    /**
+     * @var boolean
+     */
+    protected $sameYear = false;
+
+    /**
      * @var IntlDateFormatter
      */
     protected $formatter;
@@ -47,6 +58,22 @@ abstract class AbstractDateLexer implements LexerInterface
     protected $subSpan = false;
 
     /**
+     * @param OptionsResolver $resolver
+     */
+    protected function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'use_seconds' => false,
+            'use_year' => false,
+            'wrap_format' => '',
+        ]);
+
+        $resolver->setAllowedTypes('wrap_format', 'string');
+        $resolver->setAllowedTypes('use_seconds', 'boolean');
+        $resolver->setAllowedTypes('use_year', 'boolean');
+    }
+
+    /**
      * AbstractDateLexer constructor.
      * @param \DateTime[] $dates
      * @param array $options
@@ -55,9 +82,10 @@ abstract class AbstractDateLexer implements LexerInterface
     {
         $this->dates = $dates;
         $this->subDateSpans = [];
-        $this->options = array_merge([
-            'useSeconds' => false,
-        ], $options);
+
+        $resolver = new OptionsResolver();
+        $this->configureOptions($resolver);
+        $this->options = $resolver->resolve($options);
 
         foreach ($this->dates as $date) {
             if ($date === null) {
@@ -76,6 +104,7 @@ abstract class AbstractDateLexer implements LexerInterface
         }
     }
 
+
     protected function sortDates()
     {
         usort($this->dates, function ($a, $b) {
@@ -93,7 +122,7 @@ abstract class AbstractDateLexer implements LexerInterface
     {
         /** @var \DateTime $date */
         foreach ($this->dates as $date) {
-            if ($this->options['useSeconds'] === true) {
+            if ($this->options['use_seconds'] === true) {
                 $index = $date->format('H:i:s');
             } else {
                 $index = $date->format('H:i');
@@ -109,6 +138,14 @@ abstract class AbstractDateLexer implements LexerInterface
                 $this->singleDay = false;
             } else {
                 $this->singleDay = true;
+            }
+
+            if ($this->getStartDate()->format('Y') === $this->getEndDate()->format('Y')) {
+                $this->sameYear = true;
+
+                if ($this->getStartDate()->format('m') === $this->getEndDate()->format('m')) {
+                    $this->sameMonth = true;
+                }
             }
         }
     }
@@ -189,6 +226,15 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
+     * @param integer $number
+     * @return string
+     */
+    public function ordinal($number): string
+    {
+        return $number;
+    }
+
+    /**
      * @return bool
      */
     public function isContinuous(): bool
@@ -229,9 +275,25 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
+     * @return bool
+     */
+    public function isSameMonth(): bool
+    {
+        return $this->sameMonth;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSameYear(): bool
+    {
+        return $this->sameYear;
+    }
+
+    /**
      * @inheritDoc
      */
-    public function getFormatter()
+    public function getFormatter(): IntlDateFormatter
     {
         return $this->formatter;
     }
@@ -261,6 +323,34 @@ abstract class AbstractDateLexer implements LexerInterface
     {
         $this->subSpan = $subSpan;
         return $this;
+    }
+
+    /**
+     * @param \DateTime $date
+     * @return string
+     */
+    protected function formatDay(\DateTime $date): string
+    {
+        $formatted = $this->getFormatter()->format($date);
+
+        /*
+         * Add ordinals
+         */
+        $numbers = [];
+        if (false !== preg_match('#([0-9]{1,2})#', $formatted, $numbers)) {
+            if (count($numbers) > 1) {
+                $formatted = preg_replace('#([0-9]{1,2})#', $this->ordinal($numbers[1]), $formatted);
+            }
+        }
+
+        /*
+         * Wrap if necessary
+         */
+        if (!empty($this->options['wrap_format'])) {
+            return sprintf($this->options['wrap_format'], $formatted);
+        }
+        
+        return $formatted;
     }
 
     /**

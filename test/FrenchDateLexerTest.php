@@ -1,110 +1,19 @@
 <?php
 
-use AM\Date2Sentence\EnglishDateLexer;
+use AM\Date2Sentence\FrenchDateLexer;
 use PHPUnit\Framework\TestCase;
 
-class Date2SentenceTest extends TestCase
+class FrenchDateLexerTest extends TestCase
 {
     /**
      * @dataProvider toSentenceProvider
+     * @param $dates
+     * @param $expected
      */
     public function testToSentence($dates, $expected)
     {
-        $lexer = new EnglishDateLexer($dates);
-
-        $this->assertEquals($expected, $lexer->toSentence([
-            'day' => true,
-            'month' => true,
-            'year' => false,
-            'hour' => false,
-            'minute' => false,
-            'second' => false,
-        ]));
-    }
-
-    /**
-     * @dataProvider isContinuousProvider
-     */
-    public function testIsContinuous($dates, $expected)
-    {
-        $lexer = new EnglishDateLexer($dates);
-        $this->assertEquals($expected, $lexer->isContinuous());
-
-        if (!$lexer->isContinuous()) {
-            $this->assertNotCount(0, $lexer->getSubDateSpans());
-        }
-    }
-
-    /**
-     * @dataProvider isContinuousProvider
-     */
-    public function testHasSubDateSpans($dates, $isContinuous, $spanCount)
-    {
-        $lexer = new EnglishDateLexer($dates);
-        $this->assertCount($spanCount, $lexer->getSubDateSpans());
-    }
-
-    /**
-     * @return array
-     */
-    public function isContinuousProvider(): array
-    {
-        return [
-            [[
-                new DateTime('2017-06-01'),
-                new DateTime('2017-06-02'),
-                new DateTime('2017-06-03'),
-                new DateTime('2017-06-04'),
-                new DateTime('2017-06-05'),
-                new DateTime('2017-06-06'),
-                new DateTime('2017-06-07'),
-                new DateTime('2017-06-08'),
-                new DateTime('2017-06-09'),
-                new DateTime('2017-06-10'),
-                new DateTime('2017-06-11'),
-                new DateTime('2017-06-12'),
-                new DateTime('2017-06-13'),
-                new DateTime('2017-06-14'),
-                new DateTime('2017-06-15'),
-            ], true, 0],
-            [[
-                new DateTime('2017-06-01'),
-                new DateTime('2017-06-02'),
-                new DateTime('2017-06-03'),
-                new DateTime('2017-06-04'),
-                new DateTime('2017-06-05'),
-                //
-                new DateTime('2017-06-07'),
-                //
-                new DateTime('2017-06-09'),
-                new DateTime('2017-06-10'),
-                new DateTime('2017-06-11'),
-                //
-                new DateTime('2017-06-13'),
-                new DateTime('2017-06-14'),
-                new DateTime('2017-06-15'),
-            ], false, 4],
-            [[
-                new DateTime('2017-06-01 00:00:00'),
-                new DateTime('2017-06-02 00:00:00'),
-                new DateTime('2017-06-03 00:00:00'),
-                new DateTime('2017-06-04 00:00:00'),
-                new DateTime('2017-06-05 00:00:00'),
-                new DateTime('2017-06-05 00:00:00'),
-                new DateTime('2017-06-05 01:00:00'),
-                new DateTime('2017-06-05 12:00:00'),
-                new DateTime('2017-06-11 00:00:00'),
-                new DateTime('2017-06-06 00:00:00'),
-                new DateTime('2017-06-12 00:00:00'),
-                new DateTime('2017-06-07 00:00:00'),
-                new DateTime('2017-06-09 00:00:00'),
-                new DateTime('2017-06-10 00:00:00'),
-                new DateTime('2017-06-13 00:00:00'),
-                new DateTime('2017-06-08 00:00:00'),
-                new DateTime('2017-06-14 00:00:00'),
-                new DateTime('2017-06-15 00:00:00'),
-            ], true, 0]
-        ];
+        $lexer = new FrenchDateLexer($dates);
+        $this->assertEquals($expected, $lexer->toSentence());
     }
 
     /**
@@ -131,7 +40,7 @@ class Date2SentenceTest extends TestCase
                     new DateTime('2017-06-14'),
                     new DateTime('2017-06-15'),
                 ],
-                'From June 1 to June 15'
+                'Du 1er au 15 juin'
             ],
             [
                 [
@@ -154,7 +63,7 @@ class Date2SentenceTest extends TestCase
                     new DateTime('2017-07-01'),
                     new DateTime('2017-07-02'),
                 ],
-                'From June 15 to July 2'
+                'Du 15 juin au 2 juillet'
             ],
             [
                 [
@@ -177,7 +86,7 @@ class Date2SentenceTest extends TestCase
                     new DateTime('2017-07-01'),
                     new DateTime('2017-07-02'),
                 ],
-                'From June 15 to June 19, June 21 and from June 23 to July 2'
+                'Du 15 au 19 juin, le 21 juin et du 23 juin au 2 juillet'
             ],
             [
                 [
@@ -200,7 +109,7 @@ class Date2SentenceTest extends TestCase
                     new DateTime('2017-07-01'),
                     new DateTime('2017-07-02'),
                 ],
-                'From June 15 to June 21 and from June 23 to July 2'
+                'Du 15 au 21 juin et du 23 juin au 2 juillet'
             ],
             [
                 [
@@ -217,7 +126,7 @@ class Date2SentenceTest extends TestCase
                     new DateTime('2017-07-01'),
                     new DateTime('2017-07-02'),
                 ],
-                'June 21 and from June 23 to July 2'
+                'Le 21 juin et du 23 juin au 2 juillet'
             ],
             [
                 [
@@ -233,7 +142,7 @@ class Date2SentenceTest extends TestCase
                     //
                     new DateTime('2017-07-01'),
                 ],
-                'June 21, June 23, June 25, June 27, June 29 and July 1'
+                'Les 21, 23, 25, 27, 29 juin et le 1er juillet'
             ]
         ];
     }
