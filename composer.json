@@ -1,4 +1,15 @@
 {
+  "name": "ambroisemaupate/date-to-sentence",
+  "license": "MIT",
+  "type": "project",
+  "description": "A simple lexer to print human readable dates.",
+  "homepage": "https://github.com/ambroisemaupate/date2Sentence",
+  "authors": [
+    {
+      "name": "Ambroise Maupate",
+      "email": "ambroise@rezo-zero.com"
+    }
+  ],
   "autoload": {
     "psr-4": {"AM\\Date2Sentence\\": "src/"}
   },

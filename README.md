@@ -8,6 +8,10 @@ A simple lexer to print human readable dates.
 
 ### Usage
 
+```bash
+composer require ambroisemaupate/date-to-sentence
+```
+
 ```php
 use AM\Date2Sentence\EnglishDateLexer;
 
@@ -68,5 +72,5 @@ $nonContinuousLexer = new FrenchDateLexer([
 ]);
 
 echo $nonContinuousLexer->toSentence();
-// "Du 1er au 3 juin and le 10 juin"
+// "Du 1er au 3 juin et le 10 juin"
 ```

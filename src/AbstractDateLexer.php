@@ -372,4 +372,12 @@ abstract class AbstractDateLexer implements LexerInterface
             return $this->getStartDate()->format('Y-m-d') . ' --> ' . $this->getEndDate()->format('Y-m-d');
         }
     }
+
+    /**
+     * @return \DateTime[]
+     */
+    public function getAvailableTimes(): array
+    {
+        return $this->availableTimes;
+    }
 }
