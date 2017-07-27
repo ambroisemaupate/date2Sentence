@@ -25,7 +25,7 @@ abstract class AbstractDateLexer implements LexerInterface
     /**
      * @var boolean
      */
-    protected $continuous;
+    protected $continuous = true;
 
     /**
      * @var LexerInterface[]
@@ -35,7 +35,7 @@ abstract class AbstractDateLexer implements LexerInterface
     /**
      * @var boolean
      */
-    protected $singleDay;
+    protected $singleDay = true;
 
     /**
      * @var boolean
@@ -96,11 +96,13 @@ abstract class AbstractDateLexer implements LexerInterface
             }
         }
 
-        $this->sortDates();
-        $this->extractContinuity();
+        if (count($this->dates) > 0) {
+            $this->sortDates();
+            $this->extractContinuity();
 
-        if ($this->isContinuous()) {
-            $this->extractTimes();
+            if ($this->isContinuous()) {
+                $this->extractTimes();
+            }
         }
     }
 
@@ -148,6 +150,8 @@ abstract class AbstractDateLexer implements LexerInterface
                 }
             }
         }
+
+        ksort($this->availableTimes);
     }
 
     /**
@@ -243,19 +247,25 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
-    public function getStartDate(): \DateTime
+    public function getStartDate()
     {
-        return $this->dates[0];
+        if (count($this->dates) > 0) {
+            return $this->dates[0];
+        }
+        return null;
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
-    public function getEndDate(): \DateTime
+    public function getEndDate()
     {
-        return $this->dates[count($this->dates) - 1];
+        if (count($this->dates) > 0) {
+            return $this->dates[count($this->dates) - 1];
+        }
+        return null;
     }
 
     /**

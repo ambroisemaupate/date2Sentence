@@ -52,31 +52,35 @@ class FrenchDateLexer extends AbstractDateLexer
      */
     public function toSentence(): string
     {
-        if ($this->isContinuous()) {
-            if ($this->isSingleDay()) {
-                $sentence = 'le ' . $this->formatDay($this->getStartDate());
-            } else {
-                if ($this->isSameMonth()) {
-                    // French can omit first month if same as end date
-                    $sentence = 'du ' . $this->ordinal($this->getStartDate()->format('d')) . ' au ' . $this->formatDay($this->getEndDate());
+        if (count($this->dates) > 0) {
+            if ($this->isContinuous()) {
+                if ($this->isSingleDay()) {
+                    $sentence = 'le ' . $this->formatDay($this->getStartDate());
                 } else {
-                    $sentence = 'du ' . $this->formatDay($this->getStartDate()) . ' au ' . $this->formatDay($this->getEndDate());
+                    if ($this->isSameMonth()) {
+                        // French can omit first month if same as end date
+                        $sentence = 'du ' . $this->ordinal($this->getStartDate()->format('d')) . ' au ' . $this->formatDay($this->getEndDate());
+                    } else {
+                        $sentence = 'du ' . $this->formatDay($this->getStartDate()) . ' au ' . $this->formatDay($this->getEndDate());
+                    }
                 }
-            }
-        } else {
-            $strings = [];
-            foreach ($this->getSubDateSpans() as $dateSpan) {
-                $strings[] = $dateSpan->toSentence();
+            } else {
+                $strings = [];
+                foreach ($this->getSubDateSpans() as $dateSpan) {
+                    $strings[] = $dateSpan->toSentence();
+                }
+
+                $sentence = implode(', ', array_slice($strings, 0, -1));
+                $sentence .= ' et ' . $strings[count($strings) - 1];
             }
 
-            $sentence = implode(', ', array_slice($strings, 0, -1));
-            $sentence .= ' et ' . $strings[count($strings) - 1];
+            if ($this->isSubSpan()) {
+                return $sentence;
+            } else {
+                return ucfirst($sentence);
+            }
         }
 
-        if ($this->isSubSpan()) {
-            return $sentence;
-        } else {
-            return ucfirst($sentence);
-        }
+        return '';
     }
 }

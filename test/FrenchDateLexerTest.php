@@ -23,6 +23,10 @@ class FrenchDateLexerTest extends TestCase
     {
         return [
             [
+                [],
+                ''
+            ],
+            [
                 [
                     new DateTime('2017-06-01'),
                     new DateTime('2017-06-02'),

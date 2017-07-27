@@ -52,26 +52,29 @@ class EnglishDateLexer extends AbstractDateLexer
      */
     public function toSentence(): string
     {
-        if ($this->isContinuous()) {
-            if ($this->isSingleDay()) {
-                $sentence = $this->formatDay($this->getStartDate());
+        if (count($this->dates) > 0) {
+            if ($this->isContinuous()) {
+                if ($this->isSingleDay()) {
+                    $sentence = $this->formatDay($this->getStartDate());
+                } else {
+                    $sentence = 'from ' . $this->formatDay($this->getStartDate()) . ' to ' . $this->formatDay($this->getEndDate());
+                }
             } else {
-                $sentence = 'from ' . $this->formatDay($this->getStartDate()) . ' to ' . $this->formatDay($this->getEndDate());
-            }
-        } else {
-            $strings = [];
-            foreach ($this->getSubDateSpans() as $dateSpan) {
-                $strings[] = $dateSpan->toSentence();
+                $strings = [];
+                foreach ($this->getSubDateSpans() as $dateSpan) {
+                    $strings[] = $dateSpan->toSentence();
+                }
+
+                $sentence = implode(', ', array_slice($strings, 0, -1));
+                $sentence .= ' and ' . $strings[count($strings) - 1];
             }
 
-            $sentence = implode(', ', array_slice($strings, 0, -1));
-            $sentence .= ' and ' . $strings[count($strings) - 1];
+            if ($this->isSubSpan()) {
+                return $sentence;
+            } else {
+                return ucfirst($sentence);
+            }
         }
-
-        if ($this->isSubSpan()) {
-            return $sentence;
-        } else {
-            return ucfirst($sentence);
-        }
+        return '';
     }
 }

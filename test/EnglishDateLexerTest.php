@@ -6,6 +6,17 @@ use PHPUnit\Framework\TestCase;
 class EnglishDateLexerTest extends TestCase
 {
     /**
+     * @dataProvider availableTimesProvider
+     * @param $dates
+     * @param $expected
+     */
+    public function testGetAvailableTimes($dates, $expected)
+    {
+        $lexer = new EnglishDateLexer($dates);
+        $this->assertEquals($expected, $lexer->getAvailableTimes());
+    }
+
+    /**
      * @dataProvider toSentenceProvider
      * @param $dates
      * @param $expected
@@ -41,6 +52,54 @@ class EnglishDateLexerTest extends TestCase
     {
         $lexer = new EnglishDateLexer($dates);
         $this->assertCount($spanCount, $lexer->getSubDateSpans());
+    }
+
+    /**
+     * @return array
+     */
+    public function availableTimesProvider(): array
+    {
+        return [
+            [
+                [
+                    new DateTime('2017-06-01'),
+                    new DateTime('2017-06-02'),
+                    new DateTime('2017-06-03'),
+                    new DateTime('2017-06-04'),
+                    new DateTime('2017-06-05'),
+                    new DateTime('2017-06-06'),
+                ],
+                [
+                    '00:00' => new DateTime('0000-00-00 00:00:00')
+                ]
+            ],
+            [
+                [
+                    new DateTime('2017-06-01 01:30:00'),
+                    new DateTime('2017-06-02 01:30:00'),
+                    new DateTime('2017-06-02 02:00:00'),
+                    new DateTime('2017-06-03 02:00:00'),
+                    new DateTime('2017-06-03 03:00:00'),
+                    new DateTime('2017-06-04 03:00:00'),
+                ],
+                [
+                    '01:30' => new DateTime('0000-00-00 01:30:00'),
+                    '02:00' => new DateTime('0000-00-00 02:00:00'),
+                    '03:00' => new DateTime('0000-00-00 03:00:00')
+                ]
+            ],
+            [
+                [
+                    new DateTime('2017-06-01 01:00:00'),
+                    new DateTime('2017-06-02 01:00:00'),
+                    new DateTime('2017-06-03 01:00:00'),
+                    new DateTime('2017-06-04 01:00:00'),
+                ],
+                [
+                    '01:00' => new DateTime('0000-00-00 01:00:00')
+                ]
+            ]
+        ];
     }
 
     /**
@@ -112,6 +171,10 @@ class EnglishDateLexerTest extends TestCase
     public function toSentenceProvider(): array
     {
         return [
+            [
+                [],
+                ''
+            ],
             [
                 [
                     new DateTime('2017-06-01'),
