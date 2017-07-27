@@ -62,12 +62,24 @@ class EnglishDateLexerTest extends TestCase
         return [
             [
                 [
-                    new DateTime('2017-06-01'),
-                    new DateTime('2017-06-02'),
-                    new DateTime('2017-06-03'),
-                    new DateTime('2017-06-04'),
-                    new DateTime('2017-06-05'),
-                    new DateTime('2017-06-06'),
+                    new DateTime("2017-06-30 19:12:05"),
+                    new DateTime("2017-06-30 19:12:05"),
+                    new DateTime("2017-06-30 19:12:05"),
+                    new DateTime("2017-07-27 15:32:00")
+                ],
+                [
+                    '15:32' => new DateTime('0000-00-00 15:32:00'),
+                    '19:12' => new DateTime('0000-00-00 19:12:00')
+                ]
+            ],
+            [
+                [
+                    new DateTime('2017-06-01 00:00:00'),
+                    new DateTime('2017-06-02 00:00:00'),
+                    new DateTime('2017-06-03 00:00:00'),
+                    new DateTime('2017-06-04 00:00:00'),
+                    new DateTime('2017-06-05 00:00:00'),
+                    new DateTime('2017-06-06 00:00:00'),
                 ],
                 [
                     '00:00' => new DateTime('0000-00-00 00:00:00')

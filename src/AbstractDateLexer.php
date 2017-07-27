@@ -101,9 +101,7 @@ abstract class AbstractDateLexer implements LexerInterface
             $this->sortDates();
             $this->extractContinuity();
 
-            if ($this->isContinuous()) {
-                $this->extractTimes();
-            }
+            $this->extractTimes();
         }
     }
 
@@ -130,7 +128,7 @@ abstract class AbstractDateLexer implements LexerInterface
             } else {
                 $index = $date->format('H:i');
             }
-            if (!isset($this->availableTimes[$index])) {
+            if (!array_key_exists($index, $this->availableTimes)) {
                 $this->availableTimes[$index] = new \DateTime('0000-00-00 ' . $index);
             }
 
