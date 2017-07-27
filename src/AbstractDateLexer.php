@@ -82,6 +82,7 @@ abstract class AbstractDateLexer implements LexerInterface
     {
         $this->dates = $dates;
         $this->subDateSpans = [];
+        $this->availableTimes = [];
 
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
