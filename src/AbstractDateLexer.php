@@ -18,6 +18,11 @@ abstract class AbstractDateLexer implements LexerInterface
     protected $availableTimes;
 
     /**
+     * @var int[]
+     */
+    protected $availableDaysOfWeek;
+
+    /**
      * @var array
      */
     protected $options;
@@ -58,6 +63,17 @@ abstract class AbstractDateLexer implements LexerInterface
     protected $subSpan = false;
 
     /**
+     * Number of days of tolerance when computing continuity.
+     *
+     * A tolerance of 0 is: no tolerance.
+     * A tolerance of 1 means there can be 1 day without a date.
+     * etc
+     *
+     * @var int
+     */
+    protected $tolerance = 0;
+
+    /**
      * @param OptionsResolver $resolver
      */
     protected function configureOptions(OptionsResolver $resolver)
@@ -78,33 +94,14 @@ abstract class AbstractDateLexer implements LexerInterface
      * @param \DateTime[] $dates
      * @param array $options
      */
-    public function __construct(array $dates, array $options = [])
+    public function __construct(array $dates = [], array $options = [])
     {
-        $this->dates = $dates;
-        $this->subDateSpans = [];
-        $this->availableTimes = [];
-
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
         $this->options = $resolver->resolve($options);
 
-        foreach ($this->dates as $date) {
-            if ($date === null) {
-                throw new \InvalidArgumentException('One date cannot be null.');
-            }
-            if (!($date instanceof \DateTime)) {
-                throw new \InvalidArgumentException('All dates must be instances of \DateTime.');
-            }
-        }
-
-        if (count($this->dates) > 0) {
-            $this->sortDates();
-            $this->extractContinuity();
-
-            $this->extractTimes();
-        }
+        $this->setDates($dates);
     }
-
 
     protected function sortDates()
     {
@@ -154,6 +151,25 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
+     *
+     */
+    protected function extractDaysOfWeek()
+    {
+        $this->availableDaysOfWeek = [];
+
+        /** @var \DateTime $date */
+        foreach ($this->dates as $date) {
+            $index = $date->format('N');
+
+            if (!in_array($index, $this->availableDaysOfWeek)) {
+                $this->availableDaysOfWeek[] = $index;
+            }
+        }
+
+        sort($this->availableDaysOfWeek);
+    }
+
+    /**
      * Test if date collection is continuous and
      * extract any sub date collections.
      */
@@ -168,7 +184,9 @@ abstract class AbstractDateLexer implements LexerInterface
         $firstIndex = 0;
         $previous = $this->dates[0];
         for ($i = 1; $i < count($this->dates); $i++) {
-            if ($this->dates[$i]->diff($previous)->days > 1) {
+            $diff = $this->dates[$i]->diff($previous)->days;
+
+            if ($diff > ($this->getTolerance() + 1)) {
                 $this->continuous = false;
                 $subSpanIndexes[] = [$firstIndex, $i - 1];
                 $firstIndex = $i;
@@ -388,5 +406,78 @@ abstract class AbstractDateLexer implements LexerInterface
     public function getAvailableTimes(): array
     {
         return $this->availableTimes;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTolerance()
+    {
+        return $this->tolerance;
+    }
+
+    /**
+     * @param int $tolerance
+     * @return AbstractDateLexer
+     */
+    public function setTolerance($tolerance)
+    {
+        $this->tolerance = $tolerance;
+        return $this;
+    }
+
+    /**
+     * @return \DateTime[]
+     */
+    public function getDates()
+    {
+        return $this->dates;
+    }
+
+    /**
+     * @param \DateTime[] $dates
+     * @return AbstractDateLexer
+     */
+    public function setDates(array $dates)
+    {
+        $this->continuous = true;
+        $this->singleDay = true;
+        $this->sameMonth = false;
+        $this->sameYear = false;
+        $this->subSpan = false;
+        $this->subDateSpans = [];
+        $this->availableTimes = [];
+
+        $this->dates = $dates;
+
+        foreach ($this->dates as $date) {
+            if ($date === null) {
+                throw new \InvalidArgumentException('One date cannot be null.');
+            }
+            if (!($date instanceof \DateTime)) {
+                throw new \InvalidArgumentException('All dates must be instances of \DateTime.');
+            }
+        }
+
+        if (count($this->dates) > 0) {
+            $this->sortDates();
+            $this->extractContinuity();
+            $this->extractTimes();
+            $this->extractDaysOfWeek();
+        }
+
+        return $this;
+    }
+
+    /**
+     * ISO-8601 numeric representation of the day of the week.
+     *
+     * 1 (for Monday) through 7 (for Sunday)
+     *
+     * @return int[]
+     */
+    public function getAvailableDaysOfWeek()
+    {
+        return $this->availableDaysOfWeek;
     }
 }

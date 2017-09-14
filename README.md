@@ -15,23 +15,26 @@ composer require ambroisemaupate/date-to-sentence
 ```php
 use AM\Date2Sentence\EnglishDateLexer;
 
-$lexer = new EnglishDateLexer([
-    new DateTime('2017-06-01'),
-    new DateTime('2017-06-02'),
-    new DateTime('2017-06-03'),
-]);
+$lexer = new EnglishDateLexer();
+
+$lexer->setDates([
+     new DateTime('2017-06-01'),
+     new DateTime('2017-06-02'),
+     new DateTime('2017-06-03'),
+ ]);
 
 echo $lexer->toSentence();
 // "From June 1st to June 3rd"
 
-$nonContinuousLexer = new EnglishDateLexer([
-    new DateTime('2017-06-01'),
-    new DateTime('2017-06-02'),
-    new DateTime('2017-06-03'),
-    new DateTime('2017-06-10'),
-]);
 
-echo $nonContinuousLexer->toSentence();
+$lexer->setDates([
+     new DateTime('2017-06-01'),
+     new DateTime('2017-06-02'),
+     new DateTime('2017-06-03'),
+     new DateTime('2017-06-10'),
+ ]);
+
+echo $lexer->toSentence();
 // "From June 1st to June 3rd and June 10th"
 ```
 #### With wrap option
@@ -73,4 +76,10 @@ $nonContinuousLexer = new FrenchDateLexer([
 
 echo $nonContinuousLexer->toSentence();
 // "Du 1er au 3 juin et le 10 juin"
+```
+
+## Tests
+
+```bash
+vendor/phpunit/phpunit/phpunit --bootstrap vendor/autoload.php test
 ```

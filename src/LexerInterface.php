@@ -32,4 +32,15 @@ interface LexerInterface
      * @return LexerInterface
      */
     public function setFormatter(IntlDateFormatter $formatter): LexerInterface;
+
+    /**
+     * @return \DateTime[]
+     */
+    public function getDates();
+
+    /**
+     * @param \DateTime[] $dates
+     * @return LexerInterface
+     */
+    public function setDates(array $dates);
 }

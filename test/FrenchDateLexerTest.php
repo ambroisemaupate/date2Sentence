@@ -12,7 +12,8 @@ class FrenchDateLexerTest extends TestCase
      */
     public function testToSentence($dates, $expected)
     {
-        $lexer = new FrenchDateLexer($dates);
+        $lexer = new FrenchDateLexer();
+        $lexer->setDates($dates);
         $this->assertEquals($expected, $lexer->toSentence());
     }
 

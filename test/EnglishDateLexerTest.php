@@ -12,8 +12,21 @@ class EnglishDateLexerTest extends TestCase
      */
     public function testGetAvailableTimes($dates, $expected)
     {
-        $lexer = new EnglishDateLexer($dates);
+        $lexer = new EnglishDateLexer();
+        $lexer->setDates($dates);
         $this->assertEquals($expected, $lexer->getAvailableTimes());
+    }
+
+    /**
+     * @dataProvider availableDaysOfWeekProvider
+     * @param $dates
+     * @param $expected
+     */
+    public function testGetAvailableDaysOfWeek($dates, $expected)
+    {
+        $lexer = new EnglishDateLexer();
+        $lexer->setDates($dates);
+        $this->assertEquals($expected, $lexer->getAvailableDaysOfWeek());
     }
 
     /**
@@ -23,8 +36,23 @@ class EnglishDateLexerTest extends TestCase
      */
     public function testToSentence($dates, $expected)
     {
-        $lexer = new EnglishDateLexer($dates);
+        $lexer = new EnglishDateLexer();
+        $lexer->setDates($dates);
         $this->assertEquals($expected, $lexer->toSentence());
+    }
+
+    /**
+     * @dataProvider toSentenceProvider
+     * @param $dates
+     * @param $expectedNoTolerance
+     * @param $expectedWithTolerance
+     */
+    public function testToSentenceWithTolerance($dates, $expectedNoTolerance, $expectedWithTolerance)
+    {
+        $lexer = new EnglishDateLexer();
+        $lexer->setTolerance(2);
+        $lexer->setDates($dates);
+        $this->assertEquals($expectedWithTolerance, $lexer->toSentence());
     }
 
     /**
@@ -34,7 +62,8 @@ class EnglishDateLexerTest extends TestCase
      */
     public function testIsContinuous($dates, $expected)
     {
-        $lexer = new EnglishDateLexer($dates);
+        $lexer = new EnglishDateLexer();
+        $lexer->setDates($dates);
         $this->assertEquals($expected, $lexer->isContinuous());
 
         if (!$lexer->isContinuous()) {
@@ -50,7 +79,8 @@ class EnglishDateLexerTest extends TestCase
      */
     public function testHasSubDateSpans($dates, $isContinuous, $spanCount)
     {
-        $lexer = new EnglishDateLexer($dates);
+        $lexer = new EnglishDateLexer();
+        $lexer->setDates($dates);
         $this->assertCount($spanCount, $lexer->getSubDateSpans());
     }
 
@@ -109,6 +139,56 @@ class EnglishDateLexerTest extends TestCase
                 ],
                 [
                     '01:00' => new DateTime('0000-00-00 01:00:00')
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function availableDaysOfWeekProvider(): array
+    {
+        return [
+            [
+                [
+                    new DateTime("2017-06-30 19:12:05"),
+                    new DateTime("2017-06-30 19:12:05"),
+                    new DateTime("2017-06-30 19:12:05"),
+                    new DateTime("2017-07-27 15:32:00")
+                ],
+                [
+                    4,
+                    5,
+                ]
+            ],
+            [
+                [
+                    new DateTime('2017-06-01 00:00:00'),
+                    new DateTime('2017-06-02 00:00:00'),
+                    new DateTime('2017-06-03 00:00:00'),
+                    new DateTime('2017-06-04 00:00:00'),
+                    new DateTime('2017-06-05 00:00:00'),
+                    new DateTime('2017-06-06 00:00:00'),
+                ],
+                [
+                    1,
+                    2,
+                    4,
+                    5,
+                    6,
+                    7,
+                ]
+            ],
+            [
+                [
+                    new DateTime('2017-06-01 01:00:00'),
+                    new DateTime('2017-06-08 02:00:00'),
+                    new DateTime('2017-06-15 01:00:00'),
+                    new DateTime('2017-06-22 01:00:00'),
+                ],
+                [
+                    4
                 ]
             ]
         ];
@@ -185,6 +265,7 @@ class EnglishDateLexerTest extends TestCase
         return [
             [
                 [],
+                '',
                 ''
             ],
             [
@@ -205,6 +286,7 @@ class EnglishDateLexerTest extends TestCase
                     new DateTime('2017-06-14'),
                     new DateTime('2017-06-15'),
                 ],
+                'From June 1st to June 15th',
                 'From June 1st to June 15th'
             ],
             [
@@ -228,6 +310,7 @@ class EnglishDateLexerTest extends TestCase
                     new DateTime('2017-07-01'),
                     new DateTime('2017-07-02'),
                 ],
+                'From June 15th to July 2nd',
                 'From June 15th to July 2nd'
             ],
             [
@@ -251,7 +334,8 @@ class EnglishDateLexerTest extends TestCase
                     new DateTime('2017-07-01'),
                     new DateTime('2017-07-02'),
                 ],
-                'From June 15th to June 19th, June 21st and from June 23rd to July 2nd'
+                'From June 15th to June 19th, June 21st and from June 23rd to July 2nd',
+                'From June 15th to July 2nd'
             ],
             [
                 [
@@ -274,7 +358,8 @@ class EnglishDateLexerTest extends TestCase
                     new DateTime('2017-07-01'),
                     new DateTime('2017-07-02'),
                 ],
-                'From June 15th to June 21st and from June 23rd to July 2nd'
+                'From June 15th to June 21st and from June 23rd to July 2nd',
+                'From June 15th to July 2nd'
             ],
             [
                 [
@@ -291,7 +376,8 @@ class EnglishDateLexerTest extends TestCase
                     new DateTime('2017-07-01'),
                     new DateTime('2017-07-02'),
                 ],
-                'June 21st and from June 23rd to July 2nd'
+                'June 21st and from June 23rd to July 2nd',
+                'From June 21st to July 2nd'
             ],
             [
                 [
@@ -307,7 +393,8 @@ class EnglishDateLexerTest extends TestCase
                     //
                     new DateTime('2017-07-01'),
                 ],
-                'June 21st, 23rd, 25th, 27th, 29th and July 1st'
+                'June 21st, 23rd, 25th, 27th, 29th and July 1st',
+                'From June 21st to July 1st'
             ]
         ];
     }

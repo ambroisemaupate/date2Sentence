@@ -1,0 +1,13 @@
+language: php
+php:
+  - '7.0'
+  - '7.1'
+  - '7.2'
+
+install:
+   - composer install
+
+before_script:
+  - echo 'date.timezone = "Europe/Paris"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+script:
+  - vendor/phpunit/phpunit/phpunit --bootstrap vendor/autoload.php test
