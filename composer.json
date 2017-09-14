@@ -18,7 +18,6 @@
     "symfony/options-resolver": "^2.8 | ^3.2"
   },
   "require-dev": {
-    "doctrine/instantiator": "1.0.5",
     "phpunit/phpunit": "^6.1"
   }
 }
