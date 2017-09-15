@@ -249,7 +249,7 @@ abstract class AbstractDateLexer implements LexerInterface
      *
      * @return array
      */
-    public function groupSpansByMonth()
+    protected function groupSpansByMonth()
     {
         $spans = [];
         if (count($this->getSubDateSpans()) > 0) {
@@ -525,7 +525,7 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
-     * @return \DateTime[]
+     * @{inheritdoc}
      */
     public function getAvailableTimes(): array
     {
@@ -593,13 +593,6 @@ abstract class AbstractDateLexer implements LexerInterface
         return $this;
     }
 
-    /**
-     * ISO-8601 numeric representation of the day of the week.
-     *
-     * 1 (for Monday) through 7 (for Sunday)
-     *
-     * @return int[]
-     */
     public function getAvailableDaysOfWeek()
     {
         return $this->availableDaysOfWeek;
