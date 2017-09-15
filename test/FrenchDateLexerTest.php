@@ -148,6 +148,34 @@ class FrenchDateLexerTest extends TestCase
                     new DateTime('2017-07-01'),
                 ],
                 'Les 21, 23, 25, 27, 29 juin et le 1er juillet'
+            ],
+            [
+                [
+                    new DateTime('2017-06-21'),
+                    //
+                    new DateTime('2017-06-23'),
+                    //
+                    new DateTime('2017-06-25'),
+                    //
+                    new DateTime('2017-06-27'),
+                    //
+                    new DateTime('2017-06-29'),
+                    //
+                    new DateTime('2017-07-01'),
+                    //////
+                    new DateTime('2017-09-21'),
+                    //
+                    new DateTime('2017-09-23'),
+                    //
+                    new DateTime('2017-09-25'),
+                    //
+                    new DateTime('2017-09-27'),
+                    //
+                    new DateTime('2017-09-29'),
+                    //
+                    new DateTime('2017-10-01'),
+                ],
+                'Les 21, 23, 25, 27, 29 juin, le 1er juillet, les 21, 23, 25, 27, 29 septembre et le 1er octobre',
             ]
         ];
     }

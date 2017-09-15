@@ -395,6 +395,35 @@ class EnglishDateLexerTest extends TestCase
                 ],
                 'June 21st, 23rd, 25th, 27th, 29th and July 1st',
                 'From June 21st to July 1st'
+            ],
+            [
+                [
+                    new DateTime('2017-06-21'),
+                    //
+                    new DateTime('2017-06-23'),
+                    //
+                    new DateTime('2017-06-25'),
+                    //
+                    new DateTime('2017-06-27'),
+                    //
+                    new DateTime('2017-06-29'),
+                    //
+                    new DateTime('2017-07-01'),
+                    //////
+                    new DateTime('2017-09-21'),
+                    //
+                    new DateTime('2017-09-23'),
+                    //
+                    new DateTime('2017-09-25'),
+                    //
+                    new DateTime('2017-09-27'),
+                    //
+                    new DateTime('2017-09-29'),
+                    //
+                    new DateTime('2017-10-01'),
+                ],
+                'June 21st, 23rd, 25th, 27th, 29th, July 1st, September 21st, 23rd, 25th, 27th, 29th and October 1st',
+                'From June 21st to July 1st and from September 21st to October 1st'
             ]
         ];
     }

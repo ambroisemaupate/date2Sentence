@@ -48,14 +48,15 @@ class FrenchDateLexer extends AbstractDateLexer
 
 
     /**
+     * @param bool $onlyDay
      * @return string
      */
-    public function toSentence(): string
+    public function toSentence($onlyDay = false): string
     {
         if (count($this->dates) > 0) {
             if ($this->isContinuous()) {
                 if ($this->isSingleDay()) {
-                    $sentence = 'le ' . $this->formatDay($this->getStartDate());
+                    $sentence = $this->formatDay($this->getStartDate(), $onlyDay);
                 } else {
                     if ($this->isSameMonth()) {
                         // French can omit first month if same as end date
@@ -66,8 +67,32 @@ class FrenchDateLexer extends AbstractDateLexer
                 }
             } else {
                 $strings = [];
-                foreach ($this->getSubDateSpans() as $dateSpan) {
-                    $strings[] = $dateSpan->toSentence();
+                /*
+                 * Look for month groups
+                 */
+                foreach ($this->groupSpansByMonth() as $group) {
+                    if ($group instanceof LexerInterface) {
+                        $strings[] = $group->toSentence();
+                    } elseif (is_array($group)) {
+                        foreach ($group as $month => $monthSpans) {
+                            $i = 0;
+                            $determinant = count($monthSpans) > 1 ? 'les' : 'le';
+                            foreach ($monthSpans as $monthSpan) {
+                                if ($monthSpan instanceof LexerInterface) {
+                                    if ($i === 0 && $i === count($monthSpans) - 1) {
+                                        $strings[] = $determinant . ' ' . $monthSpan->toSentence(false);
+                                    } elseif ($i === 0) {
+                                        $strings[] = $determinant . ' ' . $monthSpan->toSentence(true);
+                                    }  elseif ($i === count($monthSpans) - 1) {
+                                        $strings[] = $monthSpan->toSentence(false);
+                                    } else {
+                                        $strings[] = $monthSpan->toSentence(true);
+                                    }
+                                    $i++;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 $sentence = implode(', ', array_slice($strings, 0, -1));

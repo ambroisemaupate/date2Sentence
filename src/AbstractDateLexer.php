@@ -28,7 +28,7 @@ abstract class AbstractDateLexer implements LexerInterface
     protected $options;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $continuous = true;
 
@@ -56,6 +56,16 @@ abstract class AbstractDateLexer implements LexerInterface
      * @var IntlDateFormatter
      */
     protected $formatter;
+
+    /**
+     * @var IntlDateFormatter
+     */
+    protected $dayFormatter;
+
+    /**
+     * @var IntlDateFormatter
+     */
+    protected $monthFormatter;
 
     /**
      * @var bool
@@ -96,6 +106,24 @@ abstract class AbstractDateLexer implements LexerInterface
      */
     public function __construct(array $dates = [], array $options = [])
     {
+        $this->dayFormatter = IntlDateFormatter::create(
+            $this->getLocale(),
+            IntlDateFormatter::NONE,
+            IntlDateFormatter::NONE,
+            \date_default_timezone_get(),
+            IntlDateFormatter::GREGORIAN,
+            'd'
+        );
+
+        $this->monthFormatter = IntlDateFormatter::create(
+            $this->getLocale(),
+            IntlDateFormatter::NONE,
+            IntlDateFormatter::NONE,
+            \date_default_timezone_get(),
+            IntlDateFormatter::GREGORIAN,
+            'MMMM'
+        );
+
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
         $this->options = $resolver->resolve($options);
@@ -217,12 +245,67 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
+     * Group sub-spans by months.
+     *
+     * @return array
+     */
+    public function groupSpansByMonth()
+    {
+        $spans = [];
+        if (count($this->getSubDateSpans()) > 0) {
+            $lastDaysGroup = [];
+            $lastDaysMonth = null;
+            /** @var AbstractDateLexer $dateSpan */
+            foreach ($this->getSubDateSpans() as $index => $dateSpan) {
+                if ($dateSpan->isSingleDay()) {
+                    // Get a month identifier
+                    $month = $dateSpan->getStartDate()->format('Y-m');
+                    /*
+                     * Change month, need to start a new group
+                     */
+                    if (null !== $lastDaysMonth && $lastDaysMonth !== $month) {
+                        $spans[] = [$month => $lastDaysGroup];
+                        $lastDaysGroup = [];
+                    }
+                    /*
+                     * Add day to current month group
+                     */
+                    $lastDaysGroup[] = $dateSpan;
+                    $lastDaysMonth = $month;
+                } else {
+                    /*
+                     * Add previous month group if existing
+                     */
+                    if (null !== $lastDaysMonth) {
+                        $spans[] = [$lastDaysMonth => $lastDaysGroup];
+                    }
+                    /*
+                     * Simply add continuous span as a group
+                     */
+                    $spans[] = $dateSpan;
+                    $lastDaysGroup = [];
+                    $lastDaysMonth = null;
+                }
+            }
+            /*
+             * Add last month group if existing
+             */
+            if (null !== $lastDaysMonth) {
+                $spans[] = [$lastDaysMonth => $lastDaysGroup];
+            }
+        }
+        return $spans;
+    }
+
+    /**
      * @param \DateTime[] $dates
      * @return $this
      */
     protected function createSubSpan(array $dates)
     {
-        $subSpan = new static($dates, $this->options);
+        $subSpan = new static([], $this->options);
+        $subSpan->setTolerance($this->getTolerance());
+        $subSpan->setDates($dates);
         $subSpan->setSubSpan(true);
         $this->subDateSpans[] = $subSpan;
 
@@ -335,6 +418,42 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
+     * @return IntlDateFormatter
+     */
+    public function getDayFormatter(): IntlDateFormatter
+    {
+        return $this->dayFormatter;
+    }
+
+    /**
+     * @param IntlDateFormatter $dayFormatter
+     * @return LexerInterface
+     */
+    public function setDayFormatter(IntlDateFormatter $dayFormatter): LexerInterface
+    {
+        $this->dayFormatter = $dayFormatter;
+        return $this;
+    }
+
+    /**
+     * @return IntlDateFormatter
+     */
+    public function getMonthFormatter(): IntlDateFormatter
+    {
+        return $this->monthFormatter;
+    }
+
+    /**
+     * @param IntlDateFormatter $monthFormatter
+     * @return LexerInterface
+     */
+    public function setMonthFormatter(IntlDateFormatter $monthFormatter): LexerInterface
+    {
+        $this->monthFormatter = $monthFormatter;
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function isSubSpan(): bool
@@ -354,11 +473,16 @@ abstract class AbstractDateLexer implements LexerInterface
 
     /**
      * @param \DateTime $date
+     * @param bool $onlyDay
      * @return string
      */
-    protected function formatDay(\DateTime $date): string
+    protected function formatDay(\DateTime $date, $onlyDay = false): string
     {
-        $formatted = $this->getFormatter()->format($date);
+        if ($onlyDay) {
+            $formatted = $this->getDayFormatter()->format($date);
+        } else {
+            $formatted = $this->getFormatter()->format($date);
+        }
 
         /*
          * Add ordinals

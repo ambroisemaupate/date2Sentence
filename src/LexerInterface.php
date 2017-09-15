@@ -18,14 +18,25 @@ interface LexerInterface
     public function ordinal($number): string;
 
     /**
+     * @param bool $onlyDay
      * @return string
      */
-    public function toSentence(): string;
+    public function toSentence($onlyDay = false): string;
 
     /**
      * @return IntlDateFormatter
      */
     public function getFormatter(): IntlDateFormatter;
+
+    /**
+     * @return IntlDateFormatter
+     */
+    public function getDayFormatter(): IntlDateFormatter;
+
+    /**
+     * @return IntlDateFormatter
+     */
+    public function getMonthFormatter(): IntlDateFormatter;
 
     /**
      * @param IntlDateFormatter $formatter
