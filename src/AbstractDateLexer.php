@@ -597,4 +597,28 @@ abstract class AbstractDateLexer implements LexerInterface
     {
         return $this->availableDaysOfWeek;
     }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        if (count($this->dates) > 0) {
+            if ($this->isContinuous()) {
+                if ($this->isSingleDay()) {
+                    return [$this->getStartDate()];
+                } else {
+                    return [$this->getStartDate(), $this->getEndDate()];
+                }
+            } else {
+                $spans = [];
+                /** @var LexerInterface $dateSpan */
+                foreach ($this->getSubDateSpans() as $dateSpan) {
+                    $spans[] = $dateSpan->toArray();
+                }
+                return $spans;
+            }
+        }
+        return [];
+    }
 }

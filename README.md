@@ -156,6 +156,38 @@ echo json_encode(array_keys($this->getLexer()->getAvailableTimes()));
 // ]
 ```
 
+#### Get dates as array
+
+If you need to render manually you date groups, you can use generic `toArray` method
+which will group start and end dates into arrays. Dates in same array are continuous, separate
+arrays mean that they’re not continuous.
+
+```php
+use AM\Date2Sentence\EnglishDateLexer;
+
+$lexer = new EnglishDateLexer();
+$lexer->setDates([
+    new DateTime('2017-06-01 20:00:00'),
+    new DateTime('2017-06-02 21:00:00'),
+    new DateTime('2017-06-03 21:00:00'),
+    new DateTime('2017-07-01 20:00:00'),
+    new DateTime('2017-07-02 21:00:00'),
+    new DateTime('2017-07-03 21:00:00'),
+]);
+
+echo json_encode($this->getLexer()->toArray());
+// [
+//    [
+//        {"date":"2017-06-01 20:00:00.000000","timezone_type":3,"timezone":"Europe\/Paris"},
+//        {"date":"2017-06-03 21:00:00.000000","timezone_type":3,"timezone":"Europe\/Paris"}
+//    ],
+//    [
+//        {"date":"2017-07-01 20:00:00.000000","timezone_type":3,"timezone":"Europe\/Paris"},
+//        {"date":"2017-07-03 21:00:00.000000","timezone_type":3,"timezone":"Europe\/Paris"}
+//    ]
+// ]
+```
+
 #### Get days of week
 
 *Date2Sentence* can also extract days of week from your given dates, day will be

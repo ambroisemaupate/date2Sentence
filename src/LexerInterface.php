@@ -107,4 +107,9 @@ interface LexerInterface
      * @return bool
      */
     public function dateExists(\DateTime $dateTime, $format = 'Y-m-d');
+
+    /**
+     * @return array
+     */
+    public function toArray();
 }

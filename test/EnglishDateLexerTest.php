@@ -56,6 +56,19 @@ class EnglishDateLexerTest extends TestCase
     }
 
     /**
+     * @dataProvider toArrayProvider
+     * @param $dates
+     * @param $expected
+     */
+    public function testToArray($dates, $expected)
+    {
+        $lexer = new EnglishDateLexer();
+        $lexer->setTolerance(0);
+        $lexer->setDates($dates);
+        $this->assertEquals($expected, $lexer->toArray());
+    }
+
+    /**
      * @dataProvider isContinuousProvider
      * @param $dates
      * @param $expected
@@ -425,6 +438,135 @@ class EnglishDateLexerTest extends TestCase
                 'June 21st, 23rd, 25th, 27th, 29th, July 1st, September 21st, 23rd, 25th, 27th, 29th and October 1st',
                 'From June 21st to July 1st and from September 21st to October 1st'
             ]
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function toArrayProvider(): array
+    {
+        return [
+            [
+                [],
+                [],
+            ],
+            [
+                [
+                    new DateTime('2017-06-01'),
+                    new DateTime('2017-06-02'),
+                    new DateTime('2017-06-03'),
+                    new DateTime('2017-06-04'),
+                    new DateTime('2017-06-05'),
+                    new DateTime('2017-06-06'),
+                    new DateTime('2017-06-07'),
+                    new DateTime('2017-06-08'),
+                    new DateTime('2017-06-09'),
+                    new DateTime('2017-06-10'),
+                    new DateTime('2017-06-11'),
+                    new DateTime('2017-06-12'),
+                    new DateTime('2017-06-13'),
+                    new DateTime('2017-06-14'),
+                    new DateTime('2017-06-15'),
+                ],
+                [
+                    new DateTime('2017-06-01'),
+                    new DateTime('2017-06-15'),
+                ]
+            ],
+            [
+                [
+                    new DateTime('2017-06-15'),
+                    new DateTime('2017-06-16'),
+                    new DateTime('2017-06-17'),
+                    new DateTime('2017-06-18'),
+                    new DateTime('2017-06-19'),
+                    new DateTime('2017-06-20'),
+                    new DateTime('2017-06-21'),
+                    new DateTime('2017-06-22'),
+                    new DateTime('2017-06-23'),
+                    new DateTime('2017-06-24'),
+                    new DateTime('2017-06-25'),
+                    new DateTime('2017-06-26'),
+                    new DateTime('2017-06-27'),
+                    new DateTime('2017-06-28'),
+                    new DateTime('2017-06-29'),
+                    new DateTime('2017-06-30'),
+                    new DateTime('2017-07-01'),
+                    new DateTime('2017-07-02'),
+                ],
+                [
+                    new DateTime('2017-06-15'),
+                    new DateTime('2017-07-02'),
+                ]
+            ],
+            [
+                [
+                    new DateTime('2017-06-15'),
+                    new DateTime('2017-06-16'),
+                    new DateTime('2017-06-17'),
+                    new DateTime('2017-06-18'),
+                    new DateTime('2017-06-19'),
+                    //
+                    new DateTime('2017-06-21'),
+                    //
+                    new DateTime('2017-06-23'),
+                    new DateTime('2017-06-24'),
+                    new DateTime('2017-06-25'),
+                    new DateTime('2017-06-26'),
+                    new DateTime('2017-06-27'),
+                    new DateTime('2017-06-28'),
+                    new DateTime('2017-06-29'),
+                    new DateTime('2017-06-30'),
+                    new DateTime('2017-07-01'),
+                    new DateTime('2017-07-02'),
+                ],
+                [
+                    [
+                        new DateTime('2017-06-15'),
+                        new DateTime('2017-06-19')
+                    ],
+                    [
+                        new DateTime('2017-06-21')
+                    ],
+                    [
+                        new DateTime('2017-06-23'),
+                        new DateTime('2017-07-02'),
+                    ]
+                ]
+            ],
+            [
+                [
+                    new DateTime('2017-06-15'),
+                    new DateTime('2017-06-16'),
+                    new DateTime('2017-06-17'),
+                    new DateTime('2017-06-18'),
+                    new DateTime('2017-06-19'),
+                    new DateTime('2017-06-20'),
+                    new DateTime('2017-06-21'),
+                    //
+                    new DateTime('2017-06-23'),
+                    new DateTime('2017-06-24'),
+                    new DateTime('2017-06-25'),
+                    new DateTime('2017-06-26'),
+                    new DateTime('2017-06-27'),
+                    new DateTime('2017-06-28'),
+                    new DateTime('2017-06-29'),
+                    new DateTime('2017-06-30'),
+                    new DateTime('2017-07-01'),
+                    new DateTime('2017-07-02'),
+                ],
+                [
+                    [
+                        new DateTime('2017-06-15'),
+                        new DateTime('2017-06-21'),
+                    ],
+                    [
+                        new DateTime('2017-06-23'),
+                        new DateTime('2017-07-02'),
+                    ]
+                ]
+            ],
         ];
     }
 }
