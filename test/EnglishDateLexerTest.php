@@ -105,6 +105,16 @@ class EnglishDateLexerTest extends TestCase
         return [
             [
                 [
+                    new DateTime('2017-11-25 17:00:00'),
+                    new DateTime('2017-11-26 15:00:00'),
+                ],
+                [
+                    '15:00' => new DateTime('0000-00-00 15:00:00'),
+                    '17:00' => new DateTime('0000-00-00 17:00:00')
+                ]
+            ],
+            [
+                [
                     new DateTime("2017-06-30 19:12:05"),
                     new DateTime("2017-06-30 19:12:05"),
                     new DateTime("2017-06-30 19:12:05"),
@@ -280,6 +290,14 @@ class EnglishDateLexerTest extends TestCase
                 [],
                 '',
                 ''
+            ],
+            [
+                [
+                    new DateTime('2017-11-25 17:00:00'),
+                    new DateTime('2017-11-26 15:00:00'),
+                ],
+                'From November 25th to November 26th',
+                'From November 25th to November 26th',
             ],
             [
                 [

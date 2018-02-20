@@ -29,6 +29,13 @@ class FrenchDateLexerTest extends TestCase
             ],
             [
                 [
+                    new DateTime('2017-11-25 17:00:00'),
+                    new DateTime('2017-11-26 15:00:00'),
+                ],
+                'Du 25 au 26 novembre'
+            ],
+            [
+                [
                     new DateTime('2017-06-01'),
                     new DateTime('2017-06-02'),
                     new DateTime('2017-06-03'),

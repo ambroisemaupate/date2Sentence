@@ -160,7 +160,7 @@ abstract class AbstractDateLexer implements LexerInterface
             /*
              * Test if current span is single-day
              */
-            if ($this->getEndDate()->diff($this->getStartDate())->days >= 1) {
+            if ($this->getEndDate()->format('Y-m-d') !== $this->getStartDate()->format('Y-m-d')) {
                 $this->singleDay = false;
             } else {
                 $this->singleDay = true;
