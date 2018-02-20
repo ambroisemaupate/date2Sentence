@@ -1,7 +1,7 @@
 {
   "name": "ambroisemaupate/date-to-sentence",
   "license": "MIT",
-  "type": "project",
+  "type": "library",
   "description": "A simple lexer to print human readable dates.",
   "homepage": "https://github.com/ambroisemaupate/date2Sentence",
   "authors": [
@@ -15,7 +15,7 @@
   },
   "require": {
     "php": "^7.0",
-    "symfony/options-resolver": "^2.8 | ^3.2"
+    "symfony/options-resolver": "^2.8 | ^3.2 | ^3.4"
   },
   "require-dev": {
     "phpunit/phpunit": "^6.1"
