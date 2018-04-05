@@ -2,16 +2,18 @@
 
 namespace AM\Date2Sentence;
 
-use IntlDateFormatter;
 
-class FrenchDateLexer extends AbstractDateLexer
+use IntlDateFormatter;
+use NumberFormatter;
+
+class GermanDateLexer extends AbstractDateLexer
 {
     /**
      * @inheritDoc
      */
     public function getLocale(): string
     {
-        return 'fr_FR';
+        return 'de_DE';
     }
 
     /**
@@ -34,18 +36,16 @@ class FrenchDateLexer extends AbstractDateLexer
         );
     }
 
+
     /**
      * @param integer $number
      * @return string
      */
     public function ordinal($number): string
     {
-        if ($number == 1) {
-            return '1er';
-        }
-        return $number;
+        $formatter = new NumberFormatter($this->getLocale(), NumberFormatter::ORDINAL);
+        return $formatter->format($number);
     }
-
 
     /**
      * @param bool $onlyDay
@@ -59,14 +59,15 @@ class FrenchDateLexer extends AbstractDateLexer
                     $sentence = $this->formatDay($this->getStartDate(), $onlyDay);
                 } else {
                     if ($this->isSameMonth()) {
-                        // French can omit first month if same as end date
-                        $sentence = 'du ' . $this->ordinal($this->getStartDate()->format('d')) . ' au ' . $this->formatDay($this->getEndDate());
+                        // German can omit first month if same as end date
+                        $sentence = /*'vom ' .*/ $this->ordinal($this->getStartDate()->format('d')) . ' bis ' . $this->formatDay($this->getEndDate());
                     } else {
-                        $sentence = 'du ' . $this->formatDay($this->getStartDate()) . ' au ' . $this->formatDay($this->getEndDate());
+                        $sentence = /*'vom ' .*/ $this->formatDay($this->getStartDate()) . ' bis ' . $this->formatDay($this->getEndDate());
                     }
                 }
             } else {
                 $strings = [];
+
                 /*
                  * Look for month groups
                  */
@@ -76,7 +77,7 @@ class FrenchDateLexer extends AbstractDateLexer
                     } elseif (is_array($group)) {
                         foreach ($group as $month => $monthSpans) {
                             $i = 0;
-                            $determinant = count($monthSpans) > 1 ? 'les ' : 'le ';
+                            $determinant = '';
                             foreach ($monthSpans as $monthSpan) {
                                 if ($monthSpan instanceof LexerInterface) {
                                     if ($i === 0 && $i === count($monthSpans) - 1) {
@@ -96,7 +97,7 @@ class FrenchDateLexer extends AbstractDateLexer
                 }
 
                 $sentence = implode(', ', array_slice($strings, 0, -1));
-                $sentence .= ' et ' . $strings[count($strings) - 1];
+                $sentence .= ' und ' . $strings[count($strings) - 1];
             }
 
             if ($this->isSubSpan()) {
@@ -105,7 +106,6 @@ class FrenchDateLexer extends AbstractDateLexer
                 return ucfirst($sentence);
             }
         }
-
         return '';
     }
 }
