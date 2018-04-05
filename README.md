@@ -8,6 +8,12 @@ A simple lexer to print human readable dates.
 - PHP 7.0 min.
 - PHP-intl extension
 
+### Available lexers
+
+- English
+- French
+- German
+
 ### Usage
 
 ```bash
