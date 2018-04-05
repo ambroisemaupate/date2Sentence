@@ -76,13 +76,13 @@ class FrenchDateLexer extends AbstractDateLexer
                     } elseif (is_array($group)) {
                         foreach ($group as $month => $monthSpans) {
                             $i = 0;
-                            $determinant = count($monthSpans) > 1 ? 'les' : 'le';
+                            $determinant = count($monthSpans) > 1 ? 'les ' : 'le ';
                             foreach ($monthSpans as $monthSpan) {
                                 if ($monthSpan instanceof LexerInterface) {
                                     if ($i === 0 && $i === count($monthSpans) - 1) {
-                                        $strings[] = $determinant . ' ' . $monthSpan->toSentence(false);
+                                        $strings[] = $determinant . $monthSpan->toSentence(false);
                                     } elseif ($i === 0) {
-                                        $strings[] = $determinant . ' ' . $monthSpan->toSentence(true);
+                                        $strings[] = $determinant . $monthSpan->toSentence(true);
                                     }  elseif ($i === count($monthSpans) - 1) {
                                         $strings[] = $monthSpan->toSentence(false);
                                     } else {

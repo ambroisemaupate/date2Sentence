@@ -58,7 +58,12 @@ class GermanDateLexer extends AbstractDateLexer
                 if ($this->isSingleDay()) {
                     $sentence = $this->formatDay($this->getStartDate(), $onlyDay);
                 } else {
-                    $sentence = 'vom ' . $this->formatDay($this->getStartDate()) . ' bis ' . $this->formatDay($this->getEndDate());
+                    if ($this->isSameMonth()) {
+                        // German can omit first month if same as end date
+                        $sentence = /*'vom ' .*/ $this->ordinal($this->getStartDate()->format('d')) . ' bis ' . $this->formatDay($this->getEndDate());
+                    } else {
+                        $sentence = /*'vom ' .*/ $this->formatDay($this->getStartDate()) . ' bis ' . $this->formatDay($this->getEndDate());
+                    }
                 }
             } else {
                 $strings = [];
@@ -72,9 +77,14 @@ class GermanDateLexer extends AbstractDateLexer
                     } elseif (is_array($group)) {
                         foreach ($group as $month => $monthSpans) {
                             $i = 0;
+                            $determinant = '';
                             foreach ($monthSpans as $monthSpan) {
                                 if ($monthSpan instanceof LexerInterface) {
-                                    if ($i === 0) {
+                                    if ($i === 0 && $i === count($monthSpans) - 1) {
+                                        $strings[] = $determinant . $monthSpan->toSentence(false);
+                                    } elseif ($i === 0) {
+                                        $strings[] = $determinant . $monthSpan->toSentence(true);
+                                    }  elseif ($i === count($monthSpans) - 1) {
                                         $strings[] = $monthSpan->toSentence(false);
                                     } else {
                                         $strings[] = $monthSpan->toSentence(true);
