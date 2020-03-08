@@ -1,5 +1,4 @@
 <?php
-
 namespace AM\Date2Sentence;
 
 use IntlDateFormatter;
@@ -18,7 +17,7 @@ abstract class AbstractDateLexer implements LexerInterface
     protected $availableTimes;
 
     /**
-     * @var int[]
+     * @var array<int|string>
      */
     protected $availableDaysOfWeek;
 
@@ -330,12 +329,12 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
-     * @param integer $number
+     * @param int|string $number
      * @return string
      */
     public function ordinal($number): string
     {
-        return $number;
+        return (string) $number;
     }
 
     /**
@@ -500,7 +499,7 @@ abstract class AbstractDateLexer implements LexerInterface
         if (!empty($this->options['wrap_format'])) {
             return sprintf($this->options['wrap_format'], $formatted);
         }
-        
+
         return $formatted;
     }
 
@@ -512,7 +511,7 @@ abstract class AbstractDateLexer implements LexerInterface
         if (!$this->isContinuous()) {
             $strings = [];
             foreach ($this->getSubDateSpans() as $dateSpan) {
-                $strings[] = (string) $dateSpan;
+                $strings[] = $dateSpan->__toString();
             }
 
             return implode(', ', $strings);

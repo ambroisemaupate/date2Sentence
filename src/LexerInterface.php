@@ -112,4 +112,9 @@ interface LexerInterface
      * @return array
      */
     public function toArray();
+
+    /**
+     * @return string
+     */
+    public function __toString();
 }

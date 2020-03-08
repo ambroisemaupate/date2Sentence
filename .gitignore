@@ -72,3 +72,8 @@ fabric.properties
 .idea/sonarlint
 
 # End of https://www.gitignore.io/api/composer,phpstorm
+
+# PHPCS report
+/report.txt
+/.php_cs.cache
+/.phpcs-cache
