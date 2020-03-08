@@ -35,7 +35,7 @@ class FrenchDateLexer extends AbstractDateLexer
     }
 
     /**
-     * @param integer $number
+     * @param int|string $number
      * @return string
      */
     public function ordinal($number): string
@@ -43,7 +43,7 @@ class FrenchDateLexer extends AbstractDateLexer
         if ($number == 1) {
             return '1er';
         }
-        return $number;
+        return (string) $number;
     }
 
 
@@ -83,7 +83,7 @@ class FrenchDateLexer extends AbstractDateLexer
                                         $strings[] = $determinant . $monthSpan->toSentence(false);
                                     } elseif ($i === 0) {
                                         $strings[] = $determinant . $monthSpan->toSentence(true);
-                                    }  elseif ($i === count($monthSpans) - 1) {
+                                    } elseif ($i === count($monthSpans) - 1) {
                                         $strings[] = $monthSpan->toSentence(false);
                                     } else {
                                         $strings[] = $monthSpan->toSentence(true);

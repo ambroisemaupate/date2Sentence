@@ -2,7 +2,6 @@
 
 namespace AM\Date2Sentence;
 
-
 use IntlDateFormatter;
 use NumberFormatter;
 
@@ -84,7 +83,7 @@ class GermanDateLexer extends AbstractDateLexer
                                         $strings[] = $determinant . $monthSpan->toSentence(false);
                                     } elseif ($i === 0) {
                                         $strings[] = $determinant . $monthSpan->toSentence(true);
-                                    }  elseif ($i === count($monthSpans) - 1) {
+                                    } elseif ($i === count($monthSpans) - 1) {
                                         $strings[] = $monthSpan->toSentence(false);
                                     } else {
                                         $strings[] = $monthSpan->toSentence(true);
