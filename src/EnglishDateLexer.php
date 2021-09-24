@@ -17,14 +17,14 @@ class EnglishDateLexer extends AbstractDateLexer
     /**
      * @inheritDoc
      */
-    public function __construct($dates = [], array $options = [])
+    public function __construct(array $dates = [], array $options = [])
     {
         parent::__construct($dates, $options);
 
         /**
          * Set a default EN formatter
          */
-        $this->formatter = IntlDateFormatter::create(
+        $this->formatter = new IntlDateFormatter(
             $this->getLocale(),
             IntlDateFormatter::NONE,
             IntlDateFormatter::NONE,
@@ -52,11 +52,11 @@ class EnglishDateLexer extends AbstractDateLexer
     public function toSentence($onlyDay = false): string
     {
         if (count($this->dates) > 0) {
-            if ($this->isContinuous()) {
-                if ($this->isSingleDay()) {
-                    $sentence = $this->formatDay($this->getStartDate(), $onlyDay);
-                } else {
+            if ($this->isContinuous() && null !== $this->getStartDate()) {
+                if (!$this->isSingleDay() && null !== $this->getEndDate()) {
                     $sentence = 'from ' . $this->formatDay($this->getStartDate()) . ' to ' . $this->formatDay($this->getEndDate());
+                } else {
+                    $sentence = $this->formatDay($this->getStartDate(), $onlyDay);
                 }
             } else {
                 $strings = [];

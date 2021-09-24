@@ -18,14 +18,14 @@ class GermanDateLexer extends AbstractDateLexer
     /**
      * @inheritDoc
      */
-    public function __construct($dates = [], array $options = [])
+    public function __construct(array $dates = [], array $options = [])
     {
         parent::__construct($dates, $options);
 
         /**
          * Set a default EN formatter
          */
-        $this->formatter = IntlDateFormatter::create(
+        $this->formatter = new IntlDateFormatter(
             $this->getLocale(),
             IntlDateFormatter::NONE,
             IntlDateFormatter::NONE,
@@ -37,7 +37,7 @@ class GermanDateLexer extends AbstractDateLexer
 
 
     /**
-     * @param integer $number
+     * @param int|float|string $number
      * @return string
      */
     public function ordinal($number): string
@@ -52,11 +52,13 @@ class GermanDateLexer extends AbstractDateLexer
      */
     public function toSentence($onlyDay = false): string
     {
+        $sentence = '';
+
         if (count($this->dates) > 0) {
-            if ($this->isContinuous()) {
+            if ($this->isContinuous() && null !== $this->getStartDate()) {
                 if ($this->isSingleDay()) {
                     $sentence = $this->formatDay($this->getStartDate(), $onlyDay);
-                } else {
+                } elseif (null !== $this->getEndDate()) {
                     if ($this->isSameMonth()) {
                         // German can omit first month if same as end date
                         $sentence = /*'vom ' .*/ $this->ordinal($this->getStartDate()->format('d')) . ' bis ' . $this->formatDay($this->getEndDate());
