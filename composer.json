@@ -14,7 +14,7 @@
     "psr-4": {"AM\\Date2Sentence\\": "src/"}
   },
   "require": {
-    "php": "^7.2",
+    "php": ">=7.2",
     "symfony/options-resolver": "^2.8 | ^3.2 | ^3.4 | ^4.4 | ^5.1",
     "ext-intl": "*"
   },
