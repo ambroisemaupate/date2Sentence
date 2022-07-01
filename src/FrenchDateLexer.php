@@ -24,7 +24,7 @@ class FrenchDateLexer extends AbstractDateLexer
         /**
          * Set a default EN formatter
          */
-        $this->formatter = IntlDateFormatter::create(
+        $this->formatter = new IntlDateFormatter(
             $this->getLocale(),
             IntlDateFormatter::NONE,
             IntlDateFormatter::NONE,
@@ -53,11 +53,13 @@ class FrenchDateLexer extends AbstractDateLexer
      */
     public function toSentence($onlyDay = false): string
     {
+        $sentence = '';
+
         if (count($this->dates) > 0) {
-            if ($this->isContinuous()) {
+            if ($this->isContinuous() && null !== $this->getStartDate()) {
                 if ($this->isSingleDay()) {
                     $sentence = $this->formatDay($this->getStartDate(), $onlyDay);
-                } else {
+                } elseif (null !== $this->getEndDate()) {
                     if ($this->isSameMonth()) {
                         // French can omit first month if same as end date
                         $sentence = 'du ' . $this->ordinal($this->getStartDate()->format('d')) . ' au ' . $this->formatDay($this->getEndDate());

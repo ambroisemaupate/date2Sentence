@@ -23,7 +23,7 @@ abstract class AbstractDateLexer implements LexerInterface
     protected $availableDaysOfWeek;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $options;
 
@@ -85,6 +85,7 @@ abstract class AbstractDateLexer implements LexerInterface
 
     /**
      * @param OptionsResolver $resolver
+     * @return void
      */
     protected function configureOptions(OptionsResolver $resolver)
     {
@@ -101,11 +102,11 @@ abstract class AbstractDateLexer implements LexerInterface
 
     /**
      * @param \DateTime[] $dates
-     * @param array $options
+     * @param array<string, mixed> $options
      */
     public function __construct(array $dates = [], array $options = [])
     {
-        $this->dayFormatter = IntlDateFormatter::create(
+        $this->dayFormatter = new IntlDateFormatter(
             $this->getLocale(),
             IntlDateFormatter::NONE,
             IntlDateFormatter::NONE,
@@ -114,7 +115,7 @@ abstract class AbstractDateLexer implements LexerInterface
             'd'
         );
 
-        $this->monthFormatter = IntlDateFormatter::create(
+        $this->monthFormatter = new IntlDateFormatter(
             $this->getLocale(),
             IntlDateFormatter::NONE,
             IntlDateFormatter::NONE,
@@ -126,10 +127,12 @@ abstract class AbstractDateLexer implements LexerInterface
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
         $this->options = $resolver->resolve($options);
-
         $this->setDates($dates);
     }
 
+    /**
+     * @return void
+     */
     protected function sortDates()
     {
         usort($this->dates, function ($a, $b) {
@@ -143,6 +146,9 @@ abstract class AbstractDateLexer implements LexerInterface
         });
     }
 
+    /**
+     * @return void
+     */
     protected function extractTimes()
     {
         /** @var \DateTime $date */
@@ -159,13 +165,21 @@ abstract class AbstractDateLexer implements LexerInterface
             /*
              * Test if current span is single-day
              */
-            if ($this->getEndDate()->format('Y-m-d') !== $this->getStartDate()->format('Y-m-d')) {
+            if (
+                null !== $this->getEndDate() &&
+                null !== $this->getStartDate() &&
+                $this->getEndDate()->format('Y-m-d') !== $this->getStartDate()->format('Y-m-d')
+            ) {
                 $this->singleDay = false;
             } else {
                 $this->singleDay = true;
             }
 
-            if ($this->getStartDate()->format('Y') === $this->getEndDate()->format('Y')) {
+            if (
+                null !== $this->getEndDate() &&
+                null !== $this->getStartDate() &&
+                $this->getStartDate()->format('Y') === $this->getEndDate()->format('Y')
+            ) {
                 $this->sameYear = true;
 
                 if ($this->getStartDate()->format('m') === $this->getEndDate()->format('m')) {
@@ -178,7 +192,7 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
-     *
+     * @return void
      */
     protected function extractDaysOfWeek()
     {
@@ -199,6 +213,8 @@ abstract class AbstractDateLexer implements LexerInterface
     /**
      * Test if date collection is continuous and
      * extract any sub date collections.
+     *
+     * @return void
      */
     protected function extractContinuity()
     {
@@ -246,7 +262,7 @@ abstract class AbstractDateLexer implements LexerInterface
     /**
      * Group sub-spans by months.
      *
-     * @return array
+     * @return array<int, AbstractDateLexer|array>
      */
     protected function groupSpansByMonth()
     {
@@ -256,7 +272,7 @@ abstract class AbstractDateLexer implements LexerInterface
             $lastDaysMonth = null;
             /** @var AbstractDateLexer $dateSpan */
             foreach ($this->getSubDateSpans() as $index => $dateSpan) {
-                if ($dateSpan->isSingleDay()) {
+                if ($dateSpan->isSingleDay() && null !== $dateSpan->getStartDate()) {
                     // Get a month identifier
                     $month = $dateSpan->getStartDate()->format('Y-m');
                     /*
@@ -483,6 +499,10 @@ abstract class AbstractDateLexer implements LexerInterface
             $formatted = $this->getFormatter()->format($date);
         }
 
+        if (false === $formatted) {
+            throw new \InvalidArgumentException('Date cannot be formatted');
+        }
+
         /*
          * Add ordinals
          */
@@ -500,6 +520,10 @@ abstract class AbstractDateLexer implements LexerInterface
             return sprintf($this->options['wrap_format'], $formatted);
         }
 
+        if (null === $formatted) {
+            throw new \InvalidArgumentException('Date cannot be formatted');
+        }
+
         return $formatted;
     }
 
@@ -515,12 +539,14 @@ abstract class AbstractDateLexer implements LexerInterface
             }
 
             return implode(', ', $strings);
-        } else {
-            if ($this->isSingleDay()) {
-                return $this->getStartDate()->format('Y-m-d');
+        } elseif (null !== $this->getStartDate()) {
+            if (!$this->isSingleDay() && null !== $this->getEndDate()) {
+                return $this->getStartDate()->format('Y-m-d') . ' --> ' . $this->getEndDate()->format('Y-m-d');
             }
-            return $this->getStartDate()->format('Y-m-d') . ' --> ' . $this->getEndDate()->format('Y-m-d');
+            return $this->getStartDate()->format('Y-m-d');
         }
+
+        return '';
     }
 
     /**
@@ -573,9 +599,6 @@ abstract class AbstractDateLexer implements LexerInterface
         $this->dates = $dates;
 
         foreach ($this->dates as $date) {
-            if ($date === null) {
-                throw new \InvalidArgumentException('One date cannot be null.');
-            }
             if (!($date instanceof \DateTime)) {
                 throw new \InvalidArgumentException('All dates must be instances of \DateTime.');
             }
@@ -597,20 +620,18 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
-     * @return array
+     * @return array<int, \DateTime|array>
      */
     public function toArray()
     {
         if (count($this->dates) > 0) {
-            if ($this->isContinuous()) {
-                if ($this->isSingleDay()) {
-                    return [$this->getStartDate()];
-                } else {
+            if ($this->isContinuous() && null !== $this->getStartDate()) {
+                if (!$this->isSingleDay() && null !== $this->getEndDate()) {
                     return [$this->getStartDate(), $this->getEndDate()];
                 }
+                return [$this->getStartDate()];
             } else {
                 $spans = [];
-                /** @var LexerInterface $dateSpan */
                 foreach ($this->getSubDateSpans() as $dateSpan) {
                     $spans[] = $dateSpan->toArray();
                 }

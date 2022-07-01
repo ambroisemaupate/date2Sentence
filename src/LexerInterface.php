@@ -7,6 +7,12 @@ use IntlDateFormatter;
 interface LexerInterface
 {
     /**
+     * @param array<\DateTime> $dates
+     * @param array<string, mixed> $options
+     */
+    public function __construct(array $dates = [], array $options = []);
+
+    /**
      * @return string
      */
     public function getLocale(): string;
@@ -72,7 +78,7 @@ interface LexerInterface
      *
      * 1 (for Monday) through 7 (for Sunday)
      *
-     * @return int[]
+     * @return array<int|string>
      */
     public function getAvailableDaysOfWeek();
 
@@ -109,7 +115,7 @@ interface LexerInterface
     public function dateExists(\DateTime $dateTime, $format = 'Y-m-d');
 
     /**
-     * @return array
+     * @return array<int, \DateTime|array>
      */
     public function toArray();
 
@@ -117,6 +123,4 @@ interface LexerInterface
      * @return string
      */
     public function __toString();
-
-    public function __construct(array $dates = [], array $options = []);
 }
