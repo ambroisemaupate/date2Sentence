@@ -1,4 +1,5 @@
 <?php
+
 namespace AM\Date2Sentence;
 
 use IntlDateFormatter;
@@ -99,7 +100,6 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
-     * AbstractDateLexer constructor.
      * @param \DateTime[] $dates
      * @param array $options
      */
@@ -558,7 +558,7 @@ abstract class AbstractDateLexer implements LexerInterface
     }
 
     /**
-     * @param \DateTime[] $dates
+     * @param array<\DateTime|null> $dates
      * @return AbstractDateLexer
      */
     public function setDates(array $dates)
@@ -570,7 +570,6 @@ abstract class AbstractDateLexer implements LexerInterface
         $this->subSpan = false;
         $this->subDateSpans = [];
         $this->availableTimes = [];
-
         $this->dates = $dates;
 
         foreach ($this->dates as $date) {

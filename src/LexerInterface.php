@@ -117,4 +117,6 @@ interface LexerInterface
      * @return string
      */
     public function __toString();
+
+    public function __construct(array $dates = [], array $options = []);
 }

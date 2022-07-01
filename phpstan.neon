@@ -1,5 +1,8 @@
 parameters:
-    excludes_analyse:
+    level: 4
+    paths:
+        - ./src
+    excludePaths:
         - */node_modules/*
         - */bower_components/*
         - */vendor/*
