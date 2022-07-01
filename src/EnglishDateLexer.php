@@ -1,4 +1,5 @@
 <?php
+
 namespace AM\Date2Sentence;
 
 use IntlDateFormatter;

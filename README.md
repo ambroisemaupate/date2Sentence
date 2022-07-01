@@ -1,9 +1,9 @@
 # Date2Sentence
 A simple lexer to print human readable dates.
 
-[![Build Status](https://travis-ci.org/ambroisemaupate/date2Sentence.svg?branch=master)](https://travis-ci.org/ambroisemaupate/date2Sentence)
+[![Build Status](https://app.travis-ci.com/ambroisemaupate/date2Sentence.svg?branch=master)](https://app.travis-ci.com/ambroisemaupate/date2Sentence)
 
-### Requires: 
+### Requires
 
 - PHP 7.0 min.
 - PHP-intl extension
