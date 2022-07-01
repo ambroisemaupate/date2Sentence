@@ -17,7 +17,7 @@ class EnglishDateLexer extends AbstractDateLexer
     /**
      * @inheritDoc
      */
-    public function __construct($dates = [], array $options = [])
+    public function __construct(array $dates = [], array $options = [])
     {
         parent::__construct($dates, $options);
 
