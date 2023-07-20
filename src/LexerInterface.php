@@ -112,7 +112,7 @@ interface LexerInterface
      * @param string $format [Y-m-d]
      * @return bool
      */
-    public function dateExists(\DateTime $dateTime, string $format = 'Y-m-d');
+    public function dateExists(\DateTime $dateTime, string $format = 'Y-m-d'): bool;
 
     /**
      * @return array<int, \DateTime|array<\DateTime>>
