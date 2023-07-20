@@ -8,7 +8,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 abstract class AbstractDateLexer implements LexerInterface
 {
     /**
-     * @var \DateTime[]
+     * @var array<\DateTime>
      */
     protected array $dates;
 
@@ -116,6 +116,9 @@ abstract class AbstractDateLexer implements LexerInterface
 
     protected function extractTimes(): void
     {
+        $endDate = $this->getEndDate();
+        $startDate = $this->getStartDate();
+
         foreach ($this->dates as $date) {
             if ($this->options['use_seconds'] === true) {
                 $index = $date->format('H:i:s');
@@ -130,9 +133,9 @@ abstract class AbstractDateLexer implements LexerInterface
              * Test if current span is single-day
              */
             if (
-                null !== $this->getEndDate() &&
-                null !== $this->getStartDate() &&
-                $this->getEndDate()->format('Y-m-d') !== $this->getStartDate()->format('Y-m-d')
+                null !== $endDate &&
+                null !== $startDate &&
+                $endDate->format('Y-m-d') !== $startDate->format('Y-m-d')
             ) {
                 $this->singleDay = false;
             } else {
@@ -140,13 +143,13 @@ abstract class AbstractDateLexer implements LexerInterface
             }
 
             if (
-                null !== $this->getEndDate() &&
-                null !== $this->getStartDate() &&
-                $this->getStartDate()->format('Y') === $this->getEndDate()->format('Y')
+                null !== $endDate &&
+                null !== $startDate &&
+                $startDate->format('Y') === $endDate->format('Y')
             ) {
                 $this->sameYear = true;
 
-                if ($this->getStartDate()->format('m') === $this->getEndDate()->format('m')) {
+                if ($startDate->format('m') === $endDate->format('m')) {
                     $this->sameMonth = true;
                 }
             }
@@ -475,8 +478,9 @@ abstract class AbstractDateLexer implements LexerInterface
         /*
          * Wrap if necessary
          */
-        if (!empty($this->options['wrap_format'])) {
-            return sprintf($this->options['wrap_format'], $formatted);
+        $wrapFormat = $this->options['wrap_format'] ?? null;
+        if (\is_string($wrapFormat) && !empty($wrapFormat)) {
+            return sprintf($wrapFormat, $formatted);
         }
 
         if (null === $formatted) {
@@ -555,7 +559,7 @@ abstract class AbstractDateLexer implements LexerInterface
         $this->subSpan = false;
         $this->subDateSpans = [];
         $this->availableTimes = [];
-        $this->dates = $dates;
+        $this->dates = array_filter($dates);
 
         foreach ($this->dates as $date) {
             if (!($date instanceof \DateTime)) {

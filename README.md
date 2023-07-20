@@ -5,7 +5,7 @@ A simple lexer to print human readable dates.
 
 ### Requires
 
-- PHP 7.0 min.
+- PHP 7.4 min.
 - PHP-intl extension
 
 ### Available lexers
