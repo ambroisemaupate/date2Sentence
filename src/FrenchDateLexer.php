@@ -6,17 +6,11 @@ use IntlDateFormatter;
 
 class FrenchDateLexer extends AbstractDateLexer
 {
-    /**
-     * @inheritDoc
-     */
     public function getLocale(): string
     {
         return 'fr_FR';
     }
 
-    /**
-     * @inheritDoc
-     */
     public function __construct(array $dates = [], array $options = [])
     {
         parent::__construct($dates, $options);
@@ -51,7 +45,7 @@ class FrenchDateLexer extends AbstractDateLexer
      * @param bool $onlyDay
      * @return string
      */
-    public function toSentence($onlyDay = false): string
+    public function toSentence(bool $onlyDay = false): string
     {
         $sentence = '';
 
@@ -76,21 +70,25 @@ class FrenchDateLexer extends AbstractDateLexer
                     if ($group instanceof LexerInterface) {
                         $strings[] = $group->toSentence();
                     } elseif (is_array($group)) {
-                        foreach ($group as $month => $monthSpans) {
-                            $i = 0;
-                            $determinant = count($monthSpans) > 1 ? 'les ' : 'le ';
-                            foreach ($monthSpans as $monthSpan) {
-                                if ($monthSpan instanceof LexerInterface) {
-                                    if ($i === 0 && $i === count($monthSpans) - 1) {
-                                        $strings[] = $determinant . $monthSpan->toSentence(false);
-                                    } elseif ($i === 0) {
-                                        $strings[] = $determinant . $monthSpan->toSentence(true);
-                                    } elseif ($i === count($monthSpans) - 1) {
-                                        $strings[] = $monthSpan->toSentence(false);
-                                    } else {
-                                        $strings[] = $monthSpan->toSentence(true);
+                        foreach ($group as $monthSpans) {
+                            if ($monthSpans instanceof LexerInterface) {
+                                $strings[] = $monthSpans->toSentence();
+                            } else {
+                                $i = 0;
+                                $determinant = count($monthSpans) > 1 ? 'les ' : 'le ';
+                                foreach ($monthSpans as $monthSpan) {
+                                    if ($monthSpan instanceof LexerInterface) {
+                                        if ($i === 0 && $i === count($monthSpans) - 1) {
+                                            $strings[] = $determinant . $monthSpan->toSentence(false);
+                                        } elseif ($i === 0) {
+                                            $strings[] = $determinant . $monthSpan->toSentence(true);
+                                        } elseif ($i === count($monthSpans) - 1) {
+                                            $strings[] = $monthSpan->toSentence(false);
+                                        } else {
+                                            $strings[] = $monthSpan->toSentence(true);
+                                        }
+                                        $i++;
                                     }
-                                    $i++;
                                 }
                             }
                         }

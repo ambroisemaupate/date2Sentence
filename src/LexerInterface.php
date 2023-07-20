@@ -18,7 +18,7 @@ interface LexerInterface
     public function getLocale(): string;
 
     /**
-     * @param integer $number
+     * @param int|string $number
      * @return string
      */
     public function ordinal($number): string;
@@ -27,7 +27,7 @@ interface LexerInterface
      * @param bool $onlyDay
      * @return string
      */
-    public function toSentence($onlyDay = false): string;
+    public function toSentence(bool $onlyDay = false): string;
 
     /**
      * @return IntlDateFormatter
@@ -65,13 +65,13 @@ interface LexerInterface
     /**
      * @return \DateTime[]
      */
-    public function getDates();
+    public function getDates(): array;
 
     /**
      * @param \DateTime[] $dates
      * @return LexerInterface
      */
-    public function setDates(array $dates);
+    public function setDates(array $dates): self;
 
     /**
      * ISO-8601 numeric representation of the day of the week.
@@ -80,7 +80,7 @@ interface LexerInterface
      *
      * @return array<int|string>
      */
-    public function getAvailableDaysOfWeek();
+    public function getAvailableDaysOfWeek(): array;
 
     /**
      * @return \DateTime[]
@@ -95,12 +95,12 @@ interface LexerInterface
     /**
      * @return \DateTime|null
      */
-    public function getStartDate();
+    public function getStartDate(): ?\DateTime;
 
     /**
      * @return \DateTime|null
      */
-    public function getEndDate();
+    public function getEndDate(): ?\DateTime;
 
     /**
      * @return bool
@@ -112,15 +112,15 @@ interface LexerInterface
      * @param string $format [Y-m-d]
      * @return bool
      */
-    public function dateExists(\DateTime $dateTime, $format = 'Y-m-d');
+    public function dateExists(\DateTime $dateTime, string $format = 'Y-m-d');
 
     /**
-     * @return array<int, \DateTime|array>
+     * @return array<int, \DateTime|array<\DateTime>>
      */
-    public function toArray();
+    public function toArray(): array;
 
     /**
      * @return string
      */
-    public function __toString();
+    public function __toString(): string;
 }

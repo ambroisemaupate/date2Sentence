@@ -8,69 +8,37 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 abstract class AbstractDateLexer implements LexerInterface
 {
     /**
-     * @var array|\DateTime[]
+     * @var \DateTime[]
      */
-    protected $dates;
+    protected array $dates;
 
     /**
      * @var \DateTime[]
      */
-    protected $availableTimes;
+    protected array $availableTimes;
 
     /**
      * @var array<int|string>
      */
-    protected $availableDaysOfWeek;
+    protected array $availableDaysOfWeek;
 
     /**
      * @var array<string, mixed>
      */
-    protected $options;
-
-    /**
-     * @var bool
-     */
-    protected $continuous = true;
+    protected array $options;
+    protected bool $continuous = true;
 
     /**
      * @var LexerInterface[]
      */
-    protected $subDateSpans;
-
-    /**
-     * @var boolean
-     */
-    protected $singleDay = true;
-
-    /**
-     * @var boolean
-     */
-    protected $sameMonth = false;
-
-    /**
-     * @var boolean
-     */
-    protected $sameYear = false;
-
-    /**
-     * @var IntlDateFormatter
-     */
-    protected $formatter;
-
-    /**
-     * @var IntlDateFormatter
-     */
-    protected $dayFormatter;
-
-    /**
-     * @var IntlDateFormatter
-     */
-    protected $monthFormatter;
-
-    /**
-     * @var bool
-     */
-    protected $subSpan = false;
+    protected array $subDateSpans;
+    protected bool $singleDay = true;
+    protected bool $sameMonth = false;
+    protected bool $sameYear = false;
+    protected IntlDateFormatter $formatter;
+    protected IntlDateFormatter $dayFormatter;
+    protected IntlDateFormatter $monthFormatter;
+    protected bool $subSpan = false;
 
     /**
      * Number of days of tolerance when computing continuity.
@@ -81,7 +49,7 @@ abstract class AbstractDateLexer implements LexerInterface
      *
      * @var int
      */
-    protected $tolerance = 0;
+    protected int $tolerance = 0;
 
     /**
      * @param OptionsResolver $resolver
@@ -146,12 +114,8 @@ abstract class AbstractDateLexer implements LexerInterface
         });
     }
 
-    /**
-     * @return void
-     */
-    protected function extractTimes()
+    protected function extractTimes(): void
     {
-        /** @var \DateTime $date */
         foreach ($this->dates as $date) {
             if ($this->options['use_seconds'] === true) {
                 $index = $date->format('H:i:s');
@@ -191,14 +155,10 @@ abstract class AbstractDateLexer implements LexerInterface
         ksort($this->availableTimes);
     }
 
-    /**
-     * @return void
-     */
-    protected function extractDaysOfWeek()
+    protected function extractDaysOfWeek(): void
     {
         $this->availableDaysOfWeek = [];
 
-        /** @var \DateTime $date */
         foreach ($this->dates as $date) {
             $index = $date->format('N');
 
@@ -216,7 +176,7 @@ abstract class AbstractDateLexer implements LexerInterface
      *
      * @return void
      */
-    protected function extractContinuity()
+    protected function extractContinuity(): void
     {
         $this->continuous = true;
         $subSpanIndexes = [];
@@ -245,7 +205,7 @@ abstract class AbstractDateLexer implements LexerInterface
 
         /*
          * If main span is not continuous:
-         * create subspans.
+         * create sub spans.
          */
         if (count($subSpanIndexes) > 0) {
             foreach ($subSpanIndexes as $subSpanIndex) {
@@ -262,16 +222,15 @@ abstract class AbstractDateLexer implements LexerInterface
     /**
      * Group sub-spans by months.
      *
-     * @return array<int, AbstractDateLexer|array>
+     * @return array<int, LexerInterface|array<LexerInterface|array<LexerInterface>>>
      */
-    protected function groupSpansByMonth()
+    protected function groupSpansByMonth(): array
     {
         $spans = [];
         if (count($this->getSubDateSpans()) > 0) {
             $lastDaysGroup = [];
             $lastDaysMonth = null;
-            /** @var AbstractDateLexer $dateSpan */
-            foreach ($this->getSubDateSpans() as $index => $dateSpan) {
+            foreach ($this->getSubDateSpans() as $dateSpan) {
                 if ($dateSpan->isSingleDay() && null !== $dateSpan->getStartDate()) {
                     // Get a month identifier
                     $month = $dateSpan->getStartDate()->format('Y-m');
@@ -316,7 +275,7 @@ abstract class AbstractDateLexer implements LexerInterface
      * @param \DateTime[] $dates
      * @return $this
      */
-    protected function createSubSpan(array $dates)
+    protected function createSubSpan(array $dates): self
     {
         $subSpan = new static([], $this->options);
         $subSpan->setTolerance($this->getTolerance());
@@ -332,7 +291,7 @@ abstract class AbstractDateLexer implements LexerInterface
      * @param string $format [Y-m-d]
      * @return bool
      */
-    public function dateExists(\DateTime $dateTime, $format = 'Y-m-d')
+    public function dateExists(\DateTime $dateTime, string $format = 'Y-m-d'): bool
     {
         $formattedDate = $dateTime->format($format);
         foreach ($this->dates as $date) {
@@ -364,7 +323,7 @@ abstract class AbstractDateLexer implements LexerInterface
     /**
      * @return \DateTime|null
      */
-    public function getStartDate()
+    public function getStartDate(): ?\DateTime
     {
         if (count($this->dates) > 0) {
             return $this->dates[0];
@@ -375,7 +334,7 @@ abstract class AbstractDateLexer implements LexerInterface
     /**
      * @return \DateTime|null
      */
-    public function getEndDate()
+    public function getEndDate(): ?\DateTime
     {
         if (count($this->dates) > 0) {
             return $this->dates[count($this->dates) - 1];
@@ -491,7 +450,7 @@ abstract class AbstractDateLexer implements LexerInterface
      * @param bool $onlyDay
      * @return string
      */
-    protected function formatDay(\DateTime $date, $onlyDay = false): string
+    protected function formatDay(\DateTime $date, bool $onlyDay = false): string
     {
         if ($onlyDay) {
             $formatted = $this->getDayFormatter()->format($date);
@@ -530,7 +489,7 @@ abstract class AbstractDateLexer implements LexerInterface
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         if (!$this->isContinuous()) {
             $strings = [];
@@ -560,7 +519,7 @@ abstract class AbstractDateLexer implements LexerInterface
     /**
      * @return int
      */
-    public function getTolerance()
+    public function getTolerance(): int
     {
         return $this->tolerance;
     }
@@ -569,7 +528,7 @@ abstract class AbstractDateLexer implements LexerInterface
      * @param int $tolerance
      * @return AbstractDateLexer
      */
-    public function setTolerance($tolerance)
+    public function setTolerance(int $tolerance): self
     {
         $this->tolerance = $tolerance;
         return $this;
@@ -578,7 +537,7 @@ abstract class AbstractDateLexer implements LexerInterface
     /**
      * @return \DateTime[]
      */
-    public function getDates()
+    public function getDates(): array
     {
         return $this->dates;
     }
@@ -587,7 +546,7 @@ abstract class AbstractDateLexer implements LexerInterface
      * @param array<\DateTime|null> $dates
      * @return AbstractDateLexer
      */
-    public function setDates(array $dates)
+    public function setDates(array $dates): self
     {
         $this->continuous = true;
         $this->singleDay = true;
@@ -614,15 +573,15 @@ abstract class AbstractDateLexer implements LexerInterface
         return $this;
     }
 
-    public function getAvailableDaysOfWeek()
+    public function getAvailableDaysOfWeek(): array
     {
         return $this->availableDaysOfWeek;
     }
 
     /**
-     * @return array<int, \DateTime|array>
+     * @return array<\DateTime|array<\DateTime|array<\DateTime>>>
      */
-    public function toArray()
+    public function toArray(): array
     {
         if (count($this->dates) > 0) {
             if ($this->isContinuous() && null !== $this->getStartDate()) {

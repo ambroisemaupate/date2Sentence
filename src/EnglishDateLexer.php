@@ -7,17 +7,11 @@ use NumberFormatter;
 
 class EnglishDateLexer extends AbstractDateLexer
 {
-    /**
-     * @inheritDoc
-     */
     public function getLocale(): string
     {
         return 'en_US';
     }
 
-    /**
-     * @inheritDoc
-     */
     public function __construct(array $dates = [], array $options = [])
     {
         parent::__construct($dates, $options);
@@ -37,20 +31,24 @@ class EnglishDateLexer extends AbstractDateLexer
 
 
     /**
-     * @param integer $number
+     * @param int $number
      * @return string
      */
     public function ordinal($number): string
     {
         $formatter = new NumberFormatter($this->getLocale(), NumberFormatter::ORDINAL);
-        return $formatter->format($number);
+        $string = $formatter->format($number);
+        if (!\is_string($string)) {
+            throw new \RuntimeException('Could not format ordinal');
+        }
+        return $string;
     }
 
     /**
      * @param bool $onlyDay
      * @return string
      */
-    public function toSentence($onlyDay = false): string
+    public function toSentence(bool $onlyDay = false): string
     {
         if (count($this->dates) > 0) {
             if ($this->isContinuous() && null !== $this->getStartDate()) {
@@ -68,17 +66,21 @@ class EnglishDateLexer extends AbstractDateLexer
                 foreach ($this->groupSpansByMonth() as $group) {
                     if ($group instanceof LexerInterface) {
                         $strings[] = $group->toSentence();
-                    } elseif (is_array($group)) {
-                        foreach ($group as $month => $monthSpans) {
+                    } elseif (\is_array($group)) {
+                        foreach ($group as $monthSpans) {
                             $i = 0;
-                            foreach ($monthSpans as $monthSpan) {
-                                if ($monthSpan instanceof LexerInterface) {
-                                    if ($i === 0) {
-                                        $strings[] = $monthSpan->toSentence(false);
-                                    } else {
-                                        $strings[] = $monthSpan->toSentence(true);
+                            if ($monthSpans instanceof LexerInterface) {
+                                $strings[] = $monthSpans->toSentence();
+                            } elseif (\is_array($monthSpans)) {
+                                foreach ($monthSpans as $monthSpan) {
+                                    if ($monthSpan instanceof LexerInterface) {
+                                        if ($i === 0) {
+                                            $strings[] = $monthSpan->toSentence(false);
+                                        } else {
+                                            $strings[] = $monthSpan->toSentence(true);
+                                        }
+                                        $i++;
                                     }
-                                    $i++;
                                 }
                             }
                         }

@@ -1,9 +1,7 @@
 parameters:
-    level: 5
+    level: 7
     paths:
         - ./src
     excludePaths:
-        - */node_modules/*
-        - */bower_components/*
         - */vendor/*
     reportUnmatchedIgnoredErrors: false

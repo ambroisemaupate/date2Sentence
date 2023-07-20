@@ -16,7 +16,7 @@
     }
   },
   "require": {
-    "php": ">=7.2",
+    "php": ">=7.4",
     "symfony/options-resolver": ">=2.8",
     "ext-intl": "*"
   },
