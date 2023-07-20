@@ -7,17 +7,11 @@ use NumberFormatter;
 
 class GermanDateLexer extends AbstractDateLexer
 {
-    /**
-     * @inheritDoc
-     */
     public function getLocale(): string
     {
         return 'de_DE';
     }
 
-    /**
-     * @inheritDoc
-     */
     public function __construct(array $dates = [], array $options = [])
     {
         parent::__construct($dates, $options);
@@ -37,20 +31,24 @@ class GermanDateLexer extends AbstractDateLexer
 
 
     /**
-     * @param int|float|string $number
+     * @param int|float $number
      * @return string
      */
     public function ordinal($number): string
     {
         $formatter = new NumberFormatter($this->getLocale(), NumberFormatter::ORDINAL);
-        return $formatter->format($number);
+        $string = $formatter->format($number);
+        if (!\is_string($string)) {
+            throw new \RuntimeException('Could not format ordinal');
+        }
+        return $string;
     }
 
     /**
      * @param bool $onlyDay
      * @return string
      */
-    public function toSentence($onlyDay = false): string
+    public function toSentence(bool $onlyDay = false): string
     {
         $sentence = '';
 
@@ -61,9 +59,9 @@ class GermanDateLexer extends AbstractDateLexer
                 } elseif (null !== $this->getEndDate()) {
                     if ($this->isSameMonth()) {
                         // German can omit first month if same as end date
-                        $sentence = /*'vom ' .*/ $this->ordinal($this->getStartDate()->format('d')) . ' bis ' . $this->formatDay($this->getEndDate());
+                        $sentence = $this->ordinal((int) $this->getStartDate()->format('d')) . ' bis ' . $this->formatDay($this->getEndDate());
                     } else {
-                        $sentence = /*'vom ' .*/ $this->formatDay($this->getStartDate()) . ' bis ' . $this->formatDay($this->getEndDate());
+                        $sentence = $this->formatDay($this->getStartDate()) . ' bis ' . $this->formatDay($this->getEndDate());
                     }
                 }
             } else {
@@ -76,21 +74,25 @@ class GermanDateLexer extends AbstractDateLexer
                     if ($group instanceof LexerInterface) {
                         $strings[] = $group->toSentence();
                     } elseif (is_array($group)) {
-                        foreach ($group as $month => $monthSpans) {
-                            $i = 0;
-                            $determinant = '';
-                            foreach ($monthSpans as $monthSpan) {
-                                if ($monthSpan instanceof LexerInterface) {
-                                    if ($i === 0 && $i === count($monthSpans) - 1) {
-                                        $strings[] = $determinant . $monthSpan->toSentence(false);
-                                    } elseif ($i === 0) {
-                                        $strings[] = $determinant . $monthSpan->toSentence(true);
-                                    } elseif ($i === count($monthSpans) - 1) {
-                                        $strings[] = $monthSpan->toSentence(false);
-                                    } else {
-                                        $strings[] = $monthSpan->toSentence(true);
+                        foreach ($group as $monthSpans) {
+                            if ($monthSpans instanceof LexerInterface) {
+                                $strings[] = $monthSpans->toSentence();
+                            } else {
+                                $i = 0;
+                                $determinant = '';
+                                foreach ($monthSpans as $monthSpan) {
+                                    if ($monthSpan instanceof LexerInterface) {
+                                        if ($i === 0 && $i === count($monthSpans) - 1) {
+                                            $strings[] = $determinant . $monthSpan->toSentence(false);
+                                        } elseif ($i === 0) {
+                                            $strings[] = $determinant . $monthSpan->toSentence(true);
+                                        } elseif ($i === count($monthSpans) - 1) {
+                                            $strings[] = $monthSpan->toSentence(false);
+                                        } else {
+                                            $strings[] = $monthSpan->toSentence(true);
+                                        }
+                                        $i++;
                                     }
-                                    $i++;
                                 }
                             }
                         }
